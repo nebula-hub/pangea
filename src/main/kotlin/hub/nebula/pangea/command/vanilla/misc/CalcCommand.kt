@@ -14,8 +14,9 @@ class CalcCommand: PangeaSlashCommandDeclarationWrapper {
     inner class CalcCommandExecutor : PangeaSlashCommandExecutor {
         override suspend fun execute(context: PangeaCommandContext) {
             context.defer(false)
-            context.reply(false) {}
+            context.reply(false) {
                 content = "calc command todo"
+                }
             }
         }
     }
