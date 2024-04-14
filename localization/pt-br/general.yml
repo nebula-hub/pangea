@@ -5,6 +5,12 @@ commands:
   hierarchyError: "Meu cargo está abaixo da pessoa que quer punir."
   commandExecutedBy: "Comando executado por {0}"
   command:
+    pangea:
+      info:
+        embedTitle: "Minhas Informações"
+        embedDescription: "Informaçõs técnicas pra quem quer saber... Talvez nem tão úteis assim."
+        embedServers: "Servidores"
+        embedRAMUsage: "Uso de RAM"
     admin:
       successfullyPunished: "Membro punido com sucesso."
       checkban:

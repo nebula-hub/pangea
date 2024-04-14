@@ -5,6 +5,12 @@ commands:
   hierarchyError: "My role is below the user's role that you want to punish."
   commandExecutedBy: "Command executed by {0}"
   command:
+    pangea:
+      info:
+        embedTitle: "My Informations"
+        embedDescription: "Technical information for those who want to know... Maybe not that useful."
+        embedServers: "Servers"
+        embedRAMUsage: "RAM Usage"
     admin:
       successfullyPunished: "Member was successfully punished."
       checkban:
