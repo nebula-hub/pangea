@@ -3,8 +3,8 @@ package hub.nebula.pangea
 import dev.minn.jda.ktx.jdabuilder.light
 import hub.nebula.pangea.api.command.PangeaCommandManager
 import hub.nebula.pangea.configuration.GeneralConfig.PangeaConfig
-import hub.nebula.pangea.listener.vanilla.PangeaReadyEvent
-import hub.nebula.pangea.listener.vanilla.PangeaSlashCommandEvent
+import hub.nebula.pangea.listener.PangeaReadyEvent
+import hub.nebula.pangea.listener.PangeaSlashCommandEvent
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.interactions.DiscordLocale
 import net.dv8tion.jda.api.interactions.commands.localization.ResourceBundleLocalizationFunction
