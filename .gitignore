@@ -14,5 +14,3 @@ out/
 !**/src/test/**/out/
 
 # Pangea Config Files
-!resources/
-pangea.conf
