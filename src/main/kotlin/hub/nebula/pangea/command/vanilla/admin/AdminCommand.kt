@@ -51,6 +51,24 @@ class AdminCommand : PangeaSlashCommandDeclarationWrapper {
 
             executor = AdminBanCommandExecutor()
         }
+
+        subCommand(
+            "checkban",
+            "admin.checkban.description"
+        ) {
+            options.apply {
+                add(
+                    OptionData(
+                        OptionType.STRING,
+                        "member_id",
+                        "admin.checkban.member_id.description",
+                        true
+                    )
+                )
+            }
+
+            executor = AdminCheckBanCommandExecutor()
+        }
     }
 
     inner class AdminBanCommandExecutor : PangeaSlashCommandExecutor() {
@@ -127,6 +145,12 @@ class AdminCommand : PangeaSlashCommandDeclarationWrapper {
                     }
                 }
             }
+        }
+    }
+
+    inner class AdminCheckBanCommandExecutor : PangeaSlashCommandExecutor() {
+        override suspend fun execute(context: PangeaCommandContext) {
+            TODO("Not implemented yet.")
         }
     }
 }
