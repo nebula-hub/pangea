@@ -4,6 +4,8 @@ commands:
   invalidUser: "O usuário `{0}` não existe."
   hierarchyError: "Meu cargo está abaixo da pessoa que quer punir."
   commandExecutedBy: "Comando executado por {0}"
+  buttons:
+    expired: "Parece que a interação expirou... Algo me diz que você não pode mais usar este botão."
   command:
     pangea:
       info:

@@ -4,6 +4,8 @@ commands:
   invalidUser: "The user `{0}` doesn't exist."
   hierarchyError: "My role is below the user's role that you want to punish."
   commandExecutedBy: "Command executed by {0}"
+  buttons:
+    expired: "It looks like the interaction has been expired... I guess you cannot use this button anymore."
   command:
     pangea:
       info:

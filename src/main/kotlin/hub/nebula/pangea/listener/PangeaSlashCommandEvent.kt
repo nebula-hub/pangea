@@ -17,7 +17,7 @@ class PangeaSlashCommandEvent(private val pangea: PangeaInstance) {
         val command = pangea.commandManager[commandName]?.create()
 
         if (command != null) {
-            val context = PangeaCommandContext(event)
+            val context = PangeaCommandContext(event, pangea)
 
             val subCommandGroupName = event.subcommandGroup
             val subCommandName = event.subcommandName

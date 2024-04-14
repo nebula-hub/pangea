@@ -9,7 +9,7 @@ import net.dv8tion.jda.api.interactions.commands.Command
 import net.dv8tion.jda.api.interactions.commands.localization.LocalizationFunction
 import kotlin.reflect.jvm.jvmName
 
-class PangeaCommandManager(val locales: LocalizationFunction, private val pangea: PangeaInstance) {
+class PangeaCommandManager(private val locales: LocalizationFunction, private val pangea: PangeaInstance) {
     val logger = KotlinLogging.logger(this::class.jvmName)
     val commands = mutableListOf<PangeaSlashCommandDeclarationWrapper>()
 

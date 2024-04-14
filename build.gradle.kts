@@ -24,6 +24,9 @@ dependencies {
     implementation("net.dv8tion:JDA:${Versions.JDA}")
     implementation("club.minnced:jda-ktx:${Versions.JDA_KTX}")
 
+    // ===[ JVM Stuff ]===
+    implementation("com.github.ben-manes.caffeine:caffeine:3.1.8")
+
     // ===[ Database Stuff ]===
     implementation("com.zaxxer:HikariCP:${Versions.HIKARI}")
     implementation("org.jetbrains.exposed:exposed-core:${Versions.EXPOSED}")
