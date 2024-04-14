@@ -183,6 +183,8 @@ class AdminCommand : PangeaSlashCommandDeclarationWrapper {
             } else {
                 context.sendEmbed {
                     title = context.locale["commands.command.admin.checkban.userBanned"]
+                    color = Constants.DEFAULT_COLOR
+                    thumbnail = queryBan.user.effectiveAvatarUrl
 
                     field {
                         name = context.locale["commands.command.admin.checkban.name"]
@@ -198,8 +200,6 @@ class AdminCommand : PangeaSlashCommandDeclarationWrapper {
                         name = context.locale["commands.command.admin.checkban.reason"]
                         value = "`${queryBan.reason ?: context.locale["commands.command.admin.checkban.noReason"]}`"
                     }
-
-                    color = Constants.DEFAULT_COLOR
                 }
             }
         }

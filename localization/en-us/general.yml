@@ -3,6 +3,7 @@ commands:
   noPermission: "You need the `{0}` permission to use this command."
   invalidUser: "The user `{0}` doesn't exist."
   hierarchyError: "My role is below the user's role that you want to punish."
+  commandExecutedBy: "Command executed by {0}"
   command:
     admin:
       successfullyPunished: "Member was successfully punished."

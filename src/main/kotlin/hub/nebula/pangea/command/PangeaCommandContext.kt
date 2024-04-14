@@ -42,14 +42,14 @@ class PangeaCommandContext(
     }
 
     suspend fun sendEmbed(ephemeral: Boolean = false, block: InlineEmbed.() -> Unit) {
-        reply {
+        reply(ephemeral) {
             embed {
-                author {
-                    name = user.name
+                apply(block)
+
+                footer {
+                    name = locale["commands.commandExecutedBy", user.name]
                     iconUrl = user.avatarUrl
                 }
-
-                embed(block)
             }
         }
     }

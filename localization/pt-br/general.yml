@@ -3,6 +3,7 @@ commands:
   noPermission: "Você precisa da permissão `{0}` para usar este comando."
   invalidUser: "O usuário `{0}` não existe."
   hierarchyError: "Meu cargo está abaixo da pessoa que quer punir."
+  commandExecutedBy: "Comando executado por {0}"
   command:
     admin:
       successfullyPunished: "Membro punido com sucesso."
