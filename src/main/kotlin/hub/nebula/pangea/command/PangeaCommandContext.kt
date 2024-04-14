@@ -3,8 +3,8 @@ package hub.nebula.pangea.command
 import dev.minn.jda.ktx.coroutines.await
 import dev.minn.jda.ktx.messages.InlineMessage
 import dev.minn.jda.ktx.messages.MessageCreateBuilder
+import hub.nebula.pangea.api.localization.PangeaLocale
 import net.dv8tion.jda.api.entities.ISnowflake
-import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 
 class PangeaCommandContext(
@@ -16,6 +16,13 @@ class PangeaCommandContext(
     val member = event.member
     val user = event.user
     val command = event.fullCommandName
+    val locale = if (event.isFromGuild) {
+        PangeaLocale(event.guildLocale.locale.lowercase())
+    } else {
+        PangeaLocale(event.userLocale.locale.lowercase())
+    }
+
+    fun getOption(name: String) = event.getOption(name)
 
     suspend fun defer(ephemeral: Boolean) = event.deferReply(ephemeral).await()
 

@@ -6,13 +6,19 @@ import hub.nebula.pangea.command.PangeaSlashCommandExecutor
 import hub.nebula.pangea.utils.pretty
 
 class PangeaCommand : PangeaSlashCommandDeclarationWrapper {
-    override fun create() = command("pangea", "Pangea") {
-        subCommand("ping", "Ping Command" ) {
+    override fun create() = command(
+        "pangea",
+        "pangea.description"
+    ) {
+        subCommand(
+            "ping",
+            "pangea.ping.description"
+        ) {
             executor = PangeaPingCommandExecutor()
         }
     }
 
-    inner class PangeaPingCommandExecutor : PangeaSlashCommandExecutor {
+    inner class PangeaPingCommandExecutor : PangeaSlashCommandExecutor() {
         override suspend fun execute(context: PangeaCommandContext) {
             context.defer(false)
 

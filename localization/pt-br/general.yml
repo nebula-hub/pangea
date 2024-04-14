@@ -1,0 +1,9 @@
+commands:
+  guildOnly: "Este comando só pode ser usado em servidores."
+  noPermission: "Você precisa da permissão `{0}` para usar este comando."
+  invalidUser: "O usuário `{0}` não existe."
+  hierarchyError: "Meu cargo está abaixo da pessoa que quer punir."
+  command:
+    admin:
+      banReason: "Membro punido por {0}: {1}"
+      noBanReason: "Membro punido por {0}: Nenhum de nós sabemos o porquê."

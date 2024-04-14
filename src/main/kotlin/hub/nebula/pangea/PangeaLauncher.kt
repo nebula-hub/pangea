@@ -1,14 +1,10 @@
 package hub.nebula.pangea
 
-import com.typesafe.config.ConfigFactory
 import hub.nebula.pangea.configuration.GeneralConfig
 import hub.nebula.pangea.utils.GeneralUtils
 import hub.nebula.pangea.utils.GeneralUtils.decodeFromConfig
-import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.hocon.decodeFromConfig
 import java.io.File
 import java.io.FileOutputStream
-import java.nio.charset.Charset
 import kotlin.reflect.jvm.jvmName
 import kotlin.system.exitProcess
 

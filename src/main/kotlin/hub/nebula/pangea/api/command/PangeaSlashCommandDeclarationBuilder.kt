@@ -6,6 +6,7 @@ import dev.minn.jda.ktx.interactions.commands.SubcommandGroup
 import hub.nebula.pangea.command.PangeaSlashCommandExecutor
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions
+import net.dv8tion.jda.api.interactions.commands.build.OptionData
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
 
 class PangeaSlashCommandDeclarationBuilder(
@@ -16,6 +17,7 @@ class PangeaSlashCommandDeclarationBuilder(
     val subCommands = mutableListOf<PangeaSlashCommandDeclarationBuilder>()
     val subCommandGroups = mutableListOf<PangeaSlashCommandGroupBuilder>()
     val permissions = mutableListOf<Permission>()
+    val options = mutableListOf<OptionData>()
 
     fun subCommand(name: String, description: String, block: PangeaSlashCommandDeclarationBuilder.() -> Unit) {
         val subCommand = PangeaSlashCommandDeclarationBuilder(name, description)
@@ -30,7 +32,15 @@ class PangeaSlashCommandDeclarationBuilder(
     }
 
     fun addPermission(vararg permission: Permission) {
-        permissions.addAll(permission)
+        permission.forEach {
+            permissions.add(it)
+        }
+    }
+
+    fun addOption(vararg option: OptionData) {
+        option.forEach {
+            options.add(it)
+        }
     }
 
     fun getSubCommand(name: String): PangeaSlashCommandDeclarationBuilder? {
@@ -42,25 +52,32 @@ class PangeaSlashCommandDeclarationBuilder(
     }
 
     fun build(): SlashCommandData {
-        val commandData = Command(name, description)
+        val commandData = Command(name, description) {
+            defaultPermissions = DefaultMemberPermissions.enabledFor(permissions)
 
-        commandData.defaultPermissions = DefaultMemberPermissions.enabledFor(permissions)
-
-        subCommands.forEach {
-            commandData.addSubcommands(
-                Subcommand(it.name, it.description)
-            )
-        }
-        subCommandGroups.forEach {
-            commandData.addSubcommandGroups(
-                SubcommandGroup(it.name, it.description).apply {
-                    it.subCommands.forEach { subCommand ->
-                        addSubcommands(
-                            Subcommand(subCommand.name, subCommand.description)
-                        )
+            this.addOptions(options)
+            subCommands.forEach { subCmd ->
+                addSubcommands(
+                    Subcommand(subCmd.name, subCmd.description) {
+                        this.addOptions(subCmd.options)
                     }
-                }
-            )
+                )
+            }
+
+            subCommandGroups.forEach {
+                addSubcommandGroups(
+                    SubcommandGroup(it.name, it.description).apply {
+                        it.subCommands.forEach { subCommand ->
+                            addSubcommands(
+                                Subcommand(subCommand.name, subCommand.description) {
+                                    this.addOptions(subCommand.options)
+                                }
+                            )
+                        }
+                    }
+                )
+            }
+
         }
 
         return commandData

@@ -1,0 +1,9 @@
+commands:
+  guildOnly: "This command can be used only in servers."
+  noPermission: "You need the `{0}` permission to use this command."
+  invalidUser: "The user `{0}` doesn't exist."
+  hierarchyError: "My role is below the user's role that you want to punish."
+  command:
+    admin:
+      banReason: "Member punished by {0}: {1}"
+      noBanReason: "Member punished by {0}: None of us know why."

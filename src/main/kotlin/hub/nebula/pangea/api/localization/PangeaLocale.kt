@@ -9,23 +9,29 @@ class PangeaLocale(val locale: String) {
     private val mapper = ObjectMapper(YAMLFactory()).registerKotlinModule()
 
     companion object {
-        const val PATH = "src/main/hub/nebula/pangea/api/localization"
-
+        const val PATH = "./localization"
     }
 
-    operator fun get(key: String): String? {
-        val file = File("${PATH}/${locale}/general.yml")
-
+    operator fun get(key: String, vararg placeholder: String): String {
+        val file = File("$PATH/${locale}/general.yml")
         val tree = mapper.readTree(file)
 
         val keyList = key.split(".")
-
         var current = tree
 
         for (k in keyList) {
-            current = current[k]
+            current = current.get(k)
+            if (current == null) {
+                return "!!{${key}}!!"
+            }
         }
 
-        return current.toPrettyString() ?: "!!{${keyList.joinToString(".")}}!!"
+        var result = current.asText()
+
+        placeholder.forEachIndexed { index, s ->
+            result = current.asText().replace("{${index}}", s)
+        }
+
+        return result
     }
 }

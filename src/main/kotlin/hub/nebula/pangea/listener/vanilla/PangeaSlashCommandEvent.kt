@@ -1,5 +1,6 @@
 package hub.nebula.pangea.listener.vanilla
 
+import dev.minn.jda.ktx.events.listener
 import hub.nebula.pangea.PangeaInstance
 import hub.nebula.pangea.command.PangeaCommandContext
 import mu.KotlinLogging
@@ -9,16 +10,20 @@ import kotlin.reflect.jvm.jvmName
 class PangeaSlashCommandEvent(private val pangea: PangeaInstance) {
     val logger = KotlinLogging.logger(this::class.jvmName)
 
-    suspend fun handle(event: SlashCommandInteractionEvent) {
+    fun handle() = pangea.jda.listener<SlashCommandInteractionEvent> {
+        val event = it
         val commandName = event.fullCommandName.split(" ").first()
+
         val command = pangea.commandManager[commandName]?.create()
 
         if (command != null) {
             val context = PangeaCommandContext(event)
+
             val subCommandGroupName = event.subcommandGroup
             val subCommandName = event.subcommandName
 
-            val subCommandGroup = if (subCommandGroupName != null) command.getSubCommandGroup(subCommandGroupName) else null
+            val subCommandGroup =
+                if (subCommandGroupName != null) command.getSubCommandGroup(subCommandGroupName) else null
             val subCommand = if (subCommandName != null) {
                 if (subCommandGroup != null) {
                     subCommandGroup.getSubCommand(subCommandName)
