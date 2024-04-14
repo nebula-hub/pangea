@@ -22,8 +22,7 @@ class AdminCommand : PangeaSlashCommandDeclarationWrapper {
             Permission.BAN_MEMBERS,
             Permission.MANAGE_PERMISSIONS,
             Permission.MANAGE_SERVER,
-            Permission.MESSAGE_MANAGE,
-            Permission.ADMINISTRATOR
+            Permission.MESSAGE_MANAGE
         )
 
         subCommand(
