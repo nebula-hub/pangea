@@ -12,12 +12,18 @@ data class GeneralConfig(
         val token: String,
         val applicationId: Long,
         val clientSecret: String,
-        val activities: List<PangeaActivity>
+        val activities: List<PangeaActivity>,
+        val mainLand: MainLandConfig
     ) {
         @Serializable
         data class PangeaActivity(
             val type: Int,
             val name: String
+        )
+
+        @Serializable
+        data class MainLandConfig(
+            val id: Long
         )
     }
 
