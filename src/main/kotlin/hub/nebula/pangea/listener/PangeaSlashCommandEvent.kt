@@ -1,4 +1,4 @@
-package hub.nebula.pangea.listener.vanilla
+package hub.nebula.pangea.listener
 
 import dev.minn.jda.ktx.events.listener
 import hub.nebula.pangea.PangeaInstance
