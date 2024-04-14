@@ -13,13 +13,19 @@ class PangeaLocale(val locale: String) {
 
     }
 
-    operator fun get(key: String) {
+    operator fun get(key: String): String? {
         val file = File("${PATH}/${locale}/general.yml")
 
         val tree = mapper.readTree(file)
 
         val keyList = key.split(".")
 
-        tree.
+        var current = tree
+
+        for (k in keyList) {
+            current = current[k]
+        }
+
+        return current.toPrettyString() ?: "!!{${keyList.joinToString(".")}}!!"
     }
 }
