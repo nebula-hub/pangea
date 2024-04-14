@@ -4,8 +4,10 @@ import dev.minn.jda.ktx.coroutines.await
 import hub.nebula.pangea.command.PangeaCommandContext
 import hub.nebula.pangea.command.PangeaSlashCommandDeclarationWrapper
 import hub.nebula.pangea.command.PangeaSlashCommandExecutor
+import hub.nebula.pangea.utils.Constants
 import hub.nebula.pangea.utils.pretty
 import net.dv8tion.jda.api.Permission
+import net.dv8tion.jda.api.entities.UserSnowflake
 import net.dv8tion.jda.api.exceptions.HierarchyException
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException
 import net.dv8tion.jda.api.interactions.commands.OptionType
@@ -119,7 +121,7 @@ class AdminCommand : PangeaSlashCommandDeclarationWrapper {
                     prettyReason
                 ).await()
 
-                context.reply(false) {
+                context.reply {
                     pretty(
                         context.locale["commands.command.admin.successfullyPunished"]
                     )
@@ -150,7 +152,56 @@ class AdminCommand : PangeaSlashCommandDeclarationWrapper {
 
     inner class AdminCheckBanCommandExecutor : PangeaSlashCommandExecutor() {
         override suspend fun execute(context: PangeaCommandContext) {
-            TODO("Not implemented yet.")
+            if (context.guild == null) {
+                context.reply(true) {
+                    pretty(
+                        context.locale["commands.guildOnly"]
+                    )
+                }
+                return
+            }
+
+            if (context.member?.permissions?.any { it == Permission.BAN_MEMBERS } == false) {
+                context.reply(true) {
+                    pretty(
+                        context.locale["commands.noPermission", Permission.BAN_MEMBERS.toString()]
+                    )
+                }
+                return
+            }
+
+            val queryBan = context.guild.retrieveBan(
+                UserSnowflake.fromId(context.getOption("member_id")!!.asLong)
+            ).await()
+
+            if (queryBan == null) {
+                context.reply {
+                    pretty(
+                        context.locale["commands.command.admin.checkban.notBanned"]
+                    )
+                }
+            } else {
+                context.sendEmbed {
+                    title = context.locale["commands.command.admin.checkban.userBanned"]
+
+                    field {
+                        name = context.locale["commands.command.admin.checkban.name"]
+                        value = "`${queryBan.user.name}`"
+                    }
+
+                    field {
+                        name = "ID"
+                        value = "`${queryBan.user.id}`"
+                    }
+
+                    field {
+                        name = context.locale["commands.command.admin.checkban.reason"]
+                        value = "`${queryBan.reason ?: context.locale["commands.command.admin.checkban.noReason"]}`"
+                    }
+
+                    color = Constants.DEFAULT_COLOR
+                }
+            }
         }
     }
 }

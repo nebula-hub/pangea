@@ -1,10 +1,13 @@
 package hub.nebula.pangea.command
 
 import dev.minn.jda.ktx.coroutines.await
+import dev.minn.jda.ktx.messages.Embed
+import dev.minn.jda.ktx.messages.InlineEmbed
 import dev.minn.jda.ktx.messages.InlineMessage
 import dev.minn.jda.ktx.messages.MessageCreateBuilder
 import hub.nebula.pangea.api.localization.PangeaLocale
 import net.dv8tion.jda.api.entities.ISnowflake
+import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 
 class PangeaCommandContext(
@@ -24,9 +27,9 @@ class PangeaCommandContext(
 
     fun getOption(name: String) = event.getOption(name)
 
-    suspend fun defer(ephemeral: Boolean) = event.deferReply(ephemeral).await()
+    suspend fun defer(ephemeral: Boolean = false) = event.deferReply(ephemeral).await()
 
-    suspend fun reply(ephemeral: Boolean, block: InlineMessage<*>.() -> Unit): ISnowflake? {
+    suspend fun reply(ephemeral: Boolean = false, block: InlineMessage<*>.() -> Unit): ISnowflake? {
         val msg = MessageCreateBuilder {
             apply(block)
         }
@@ -35,6 +38,19 @@ class PangeaCommandContext(
             event.hook.setEphemeral(ephemeral).sendMessage(msg.build()).await()
         } else {
             event.reply(msg.build()).await()
+        }
+    }
+
+    suspend fun sendEmbed(ephemeral: Boolean = false, block: InlineEmbed.() -> Unit) {
+        reply {
+            embed {
+                author {
+                    name = user.name
+                    iconUrl = user.avatarUrl
+                }
+
+                embed(block)
+            }
         }
     }
 }

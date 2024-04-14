@@ -6,6 +6,12 @@ commands:
   command:
     admin:
       successfullyPunished: "Membro punido com sucesso."
+      checkban:
+        notBanned: "Este usuário não está banido."
+        userBanned: "Usuário Banido"
+        name: "Nome do Usuário"
+        reason: "Motivo"
+        noReason: "Nenhum motivo especificado."
       ban:
         banReason: "Membro punido por {0}: {1}"
         noBanReason: "Membro punido por {0}: Nenhum de nós sabemos o porquê."
