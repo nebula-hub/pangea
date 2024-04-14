@@ -5,5 +5,7 @@ commands:
   hierarchyError: "My role is below the user's role that you want to punish."
   command:
     admin:
-      banReason: "Member punished by {0}: {1}"
-      noBanReason: "Member punished by {0}: None of us know why."
+      successfullyPunished: "Member was successfully punished."
+      ban:
+        banReason: "Member banned by {0}: {1}"
+        noBanReason: "Member banned by {0}: None of us know why."

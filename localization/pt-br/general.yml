@@ -5,5 +5,7 @@ commands:
   hierarchyError: "Meu cargo está abaixo da pessoa que quer punir."
   command:
     admin:
-      banReason: "Membro punido por {0}: {1}"
-      noBanReason: "Membro punido por {0}: Nenhum de nós sabemos o porquê."
+      successfullyPunished: "Membro punido com sucesso."
+      ban:
+        banReason: "Membro punido por {0}: {1}"
+        noBanReason: "Membro punido por {0}: Nenhum de nós sabemos o porquê."

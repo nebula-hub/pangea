@@ -87,9 +87,9 @@ class AdminCommand : PangeaSlashCommandDeclarationWrapper {
 
             val reason = context.getOption("reason")?.asString
             val prettyReason = if (reason == null) {
-                context.locale["commands.noBanReason", context.user.name]
+                context.locale["commands.command.admin.ban.noBanReason", context.user.name]
             } else {
-                context.locale["banReason", context.user.name, reason]
+                context.locale["commands.command.admin.ban.banReason", context.user.name, reason]
             }
 
             context.defer(false)
@@ -101,6 +101,12 @@ class AdminCommand : PangeaSlashCommandDeclarationWrapper {
                 ).reason(
                     prettyReason
                 ).await()
+
+                context.reply(false) {
+                    pretty(
+                        context.locale["commands.command.admin.successfullyPunished"]
+                    )
+                }
             } catch (e: Exception) {
                 when (e) {
                     is InsufficientPermissionException -> {
