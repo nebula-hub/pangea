@@ -11,8 +11,15 @@ data class GeneralConfig(
     data class PangeaConfig(
         val token: String,
         val applicationId: Long,
-        val clientSecret: String
-    )
+        val clientSecret: String,
+        val activities: List<PangeaActivity>
+    ) {
+        @Serializable
+        data class PangeaActivity(
+            val type: Int,
+            val name: String
+        )
+    }
 
     @Serializable
     data class GalaxyConfig(

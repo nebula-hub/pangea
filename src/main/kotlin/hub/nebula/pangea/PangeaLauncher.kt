@@ -1,10 +1,14 @@
 package hub.nebula.pangea
 
+import com.typesafe.config.ConfigFactory
 import hub.nebula.pangea.configuration.GeneralConfig
 import hub.nebula.pangea.utils.GeneralUtils
+import hub.nebula.pangea.utils.GeneralUtils.decodeFromConfig
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.hocon.decodeFromConfig
 import java.io.File
 import java.io.FileOutputStream
+import java.nio.charset.Charset
 import kotlin.reflect.jvm.jvmName
 import kotlin.system.exitProcess
 
@@ -13,20 +17,16 @@ object PangeaLauncher {
 
     @JvmStatic
     fun main(args: Array<String>) {
-        copyFromJar("pangea.conf")
-        // TODO: copyFromJar("interactions.conf")
+        val configurationFile = File("./pangea.conf")
 
-        val config: GeneralConfig = loadConfig("pangea.conf")
-
-        runBlocking {
-            PangeaInstance(config.pangea).start()
+        if (!configurationFile.exists()) {
+            copyFromJar("pangea.conf")
+            exitProcess(0)
         }
-    }
 
-    private fun loadConfig(fileName: String): GeneralConfig {
-        val file = File("./$fileName")
+        val config: GeneralConfig = GeneralUtils.hocon.decodeFromConfig(configurationFile)
 
-        return GeneralUtils.json.decodeFromString(file.readBytes().toString(Charsets.UTF_8))
+        PangeaInstance(config.pangea).start()
     }
 
     private fun copyFromJar(fileName: String) {
@@ -40,6 +40,5 @@ object PangeaLauncher {
 
         logger.info { "Copied $fileName from JAR." }
         logger.info { "Please fill in the configuration file and restart the bot."}
-        exitProcess(0)
     }
 }

@@ -16,6 +16,7 @@ object Versions {
 
     // ===[ Serialization Stuff ]===
     const val KOTLINX_SERIALIZATION = "1.6.3"
+    const val JACKSON = "2.15.2"
 
     // ===[ Gradle Plugins ]===
     const val SHADOW_JAR = "8.1.1"
