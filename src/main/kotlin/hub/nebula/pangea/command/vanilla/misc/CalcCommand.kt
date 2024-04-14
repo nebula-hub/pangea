@@ -1,6 +1,5 @@
 package hub.nebula.pangea.command.vanilla.misc
 
-import dev.minn.jda.ktx.messages.SendDefaults.content
 import hub.nebula.pangea.command.PangeaCommandContext
 import hub.nebula.pangea.command.PangeaSlashCommandDeclarationWrapper
 import hub.nebula.pangea.command.PangeaSlashCommandExecutor
