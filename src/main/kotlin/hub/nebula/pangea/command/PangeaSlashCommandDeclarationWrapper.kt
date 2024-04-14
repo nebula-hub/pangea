@@ -1,7 +1,5 @@
 package hub.nebula.pangea.command
 
-import hub.nebula.pangea.api.command.PangeaSlashCommandDeclarationBuilder
-
 interface PangeaSlashCommandDeclarationWrapper {
     fun create(): PangeaSlashCommandDeclarationBuilder
 

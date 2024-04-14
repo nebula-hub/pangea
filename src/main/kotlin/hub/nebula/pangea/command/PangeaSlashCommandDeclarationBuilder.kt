@@ -1,9 +1,8 @@
-package hub.nebula.pangea.api.command
+package hub.nebula.pangea.command
 
 import dev.minn.jda.ktx.interactions.commands.Command
 import dev.minn.jda.ktx.interactions.commands.Subcommand
 import dev.minn.jda.ktx.interactions.commands.SubcommandGroup
-import hub.nebula.pangea.command.PangeaSlashCommandExecutor
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions
 import net.dv8tion.jda.api.interactions.commands.build.OptionData

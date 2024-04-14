@@ -1,8 +1,7 @@
-package hub.nebula.pangea.api.command
+package hub.nebula.pangea.command
 
 import dev.minn.jda.ktx.coroutines.await
 import hub.nebula.pangea.PangeaInstance
-import hub.nebula.pangea.command.PangeaSlashCommandDeclarationWrapper
 import hub.nebula.pangea.command.vanilla.admin.AdminCommand
 import hub.nebula.pangea.command.vanilla.misc.PangeaCommand
 import mu.KotlinLogging
