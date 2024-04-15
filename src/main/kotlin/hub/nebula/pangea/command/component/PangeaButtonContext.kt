@@ -4,12 +4,14 @@ import dev.minn.jda.ktx.coroutines.await
 import dev.minn.jda.ktx.messages.InlineEmbed
 import dev.minn.jda.ktx.messages.InlineMessage
 import dev.minn.jda.ktx.messages.MessageCreateBuilder
+import hub.nebula.pangea.PangeaInstance
 import hub.nebula.pangea.api.localization.PangeaLocale
 import net.dv8tion.jda.api.entities.ISnowflake
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent
 
 class PangeaButtonContext(
-    private val event: ButtonInteractionEvent
+    private val event: ButtonInteractionEvent,
+    val pangea: PangeaInstance
 ) {
     val jda = event.jda
     val guild = event.guild
@@ -49,5 +51,9 @@ class PangeaButtonContext(
                 }
             }
         }
+    }
+
+    fun terminate() {
+        pangea.interactionManager.buttonCallbacks.remove(PangeaComponentId.invoke(event.componentId).uniqueId)
     }
 }

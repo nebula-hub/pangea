@@ -6,6 +6,7 @@ commands:
   commandExecutedBy: "Command executed by {0}"
   buttons:
     expired: "It looks like the interaction has been expired... I guess you cannot use this button anymore."
+    unban: "Unban"
   command:
     pangea:
       info:
@@ -21,6 +22,7 @@ commands:
         name: "User Name"
         reason: "Reason"
         noReason: "No reason specified."
+        successfullyUnban: "Sucessfully unbanned member."
       ban:
         banReason: "Member banned by {0}: {1}"
         noBanReason: "Member banned by {0}: None of us know why."

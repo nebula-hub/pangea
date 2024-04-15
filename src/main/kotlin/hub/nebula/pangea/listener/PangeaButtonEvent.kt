@@ -27,7 +27,8 @@ class PangeaButtonEvent(val pangea: PangeaInstance) {
 
         val callbackId = pangea.interactionManager.buttonCallbacks[componentId.uniqueId]
         val context = PangeaButtonContext(
-            event
+            event,
+            pangea
         )
 
         if (callbackId == null) {

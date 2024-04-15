@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.exceptions.HierarchyException
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException
 import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.OptionData
+import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle
 import java.util.concurrent.TimeUnit
 
 class AdminCommand : PangeaSlashCommandDeclarationWrapper {
@@ -170,9 +171,13 @@ class AdminCommand : PangeaSlashCommandDeclarationWrapper {
                 return
             }
 
-            val queryBan = context.guild.retrieveBan(
-                UserSnowflake.fromId(context.getOption("member_id")!!.asLong)
-            ).await()
+            val queryBan = try {
+                context.guild.retrieveBan(
+                    UserSnowflake.fromId(context.getOption("member_id")!!.asLong)
+                ).await()
+            } catch (e: Exception) {
+                null
+            }
 
             if (queryBan == null) {
                 context.reply {
@@ -181,25 +186,48 @@ class AdminCommand : PangeaSlashCommandDeclarationWrapper {
                     )
                 }
             } else {
-                context.sendEmbed {
-                    title = context.locale["commands.command.admin.checkban.userBanned"]
-                    color = Constants.DEFAULT_COLOR
-                    thumbnail = queryBan.user.effectiveAvatarUrl
+                context.reply {
+                    embed {
+                        title = context.locale["commands.command.admin.checkban.userBanned"]
+                        color = Constants.DEFAULT_COLOR
+                        thumbnail = queryBan.user.effectiveAvatarUrl
 
-                    field {
-                        name = context.locale["commands.command.admin.checkban.name"]
-                        value = "`${queryBan.user.name}`"
+                        field {
+                            name = context.locale["commands.command.admin.checkban.name"]
+                            value = "`${queryBan.user.name}`"
+                        }
+
+                        field {
+                            name = "ID"
+                            value = "`${queryBan.user.id}`"
+                        }
+
+                        field {
+                            name = context.locale["commands.command.admin.checkban.reason"]
+                            value = "`${queryBan.reason ?: context.locale["commands.command.admin.checkban.noReason"]}`"
+                        }
                     }
 
-                    field {
-                        name = "ID"
-                        value = "`${queryBan.user.id}`"
-                    }
+                    actionRow(
+                        context.pangea.interactionManager
+                            .createButtonForUser(
+                                context.user,
+                                ButtonStyle.DANGER,
+                                context.locale["commands.buttons.unban"],
+                            ) {
+                                context.guild.unban(
+                                    UserSnowflake.fromId(queryBan.user.idLong)
+                                ).await()
 
-                    field {
-                        name = context.locale["commands.command.admin.checkban.reason"]
-                        value = "`${queryBan.reason ?: context.locale["commands.command.admin.checkban.noReason"]}`"
-                    }
+                                it.reply {
+                                    pretty(
+                                        it.locale["commands.command.admin.checkban.successfullyUnban"]
+                                    )
+                                }
+
+                                it.terminate()
+                            }
+                    )
                 }
             }
         }
