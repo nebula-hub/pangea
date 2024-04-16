@@ -20,7 +20,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build with Gradle
-        run: ./gradlew build --stacktrace
+        run: ./gradlew shadowJar --stacktrace
 
       - uses: actions/upload-artifact@v2
         name: Upload Pangea
