@@ -52,6 +52,10 @@ tasks {
         archiveBaseName.set("nebula-pangea")
         archiveVersion.set(version.toString())
         archiveClassifier.set("")
+
+        manifest {
+            attributes["Main-Class"] = "hub.nebula.pangea.PangeaLauncher"
+        }
     }
 
     test {
