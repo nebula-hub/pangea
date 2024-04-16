@@ -26,6 +26,8 @@ class PangeaButtonContext(
 
     suspend fun defer(ephemeral: Boolean = false) = event.deferReply(ephemeral).await()
 
+    suspend fun deferEdit(ephemeral: Boolean = false) = event.deferEdit().await()
+
     suspend fun reply(ephemeral: Boolean = false, block: InlineMessage<*>.() -> Unit): ISnowflake? {
         val msg = MessageCreateBuilder {
             apply(block)

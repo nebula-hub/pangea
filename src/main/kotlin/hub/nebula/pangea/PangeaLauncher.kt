@@ -1,8 +1,9 @@
 package hub.nebula.pangea
 
 import hub.nebula.pangea.configuration.GeneralConfig
-import hub.nebula.pangea.utils.GeneralUtils
+import hub.nebula.pangea.utils.GeneralUtils.hocon
 import hub.nebula.pangea.utils.GeneralUtils.decodeFromConfig
+import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.io.FileOutputStream
 import kotlin.reflect.jvm.jvmName
@@ -20,9 +21,11 @@ object PangeaLauncher {
             exitProcess(0)
         }
 
-        val config: GeneralConfig = GeneralUtils.hocon.decodeFromConfig(configurationFile)
+        val config: GeneralConfig = hocon.decodeFromConfig(configurationFile)
 
-        PangeaInstance(config.pangea).start()
+        runBlocking {
+            PangeaInstance(config.pangea).start()
+        }
     }
 
     private fun copyFromJar(fileName: String) {

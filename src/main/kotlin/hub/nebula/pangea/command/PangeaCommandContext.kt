@@ -1,6 +1,7 @@
 package hub.nebula.pangea.command
 
 import dev.minn.jda.ktx.coroutines.await
+import dev.minn.jda.ktx.interactions.components.getOption
 import dev.minn.jda.ktx.messages.InlineEmbed
 import dev.minn.jda.ktx.messages.InlineMessage
 import dev.minn.jda.ktx.messages.MessageCreateBuilder
@@ -10,7 +11,7 @@ import net.dv8tion.jda.api.entities.ISnowflake
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 
 class PangeaCommandContext(
-    private val event: SlashCommandInteractionEvent,
+    val event: SlashCommandInteractionEvent,
     val pangea: PangeaInstance
 ) {
     val jda = event.jda
@@ -26,6 +27,8 @@ class PangeaCommandContext(
     }
 
     fun getOption(name: String) = event.getOption(name)
+
+    suspend fun commands() = jda.retrieveCommands().await()
 
     suspend fun defer(ephemeral: Boolean = false) = event.deferReply(ephemeral).await()
 

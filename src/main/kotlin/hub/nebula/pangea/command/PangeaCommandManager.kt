@@ -4,6 +4,7 @@ import dev.minn.jda.ktx.coroutines.await
 import hub.nebula.pangea.PangeaInstance
 import hub.nebula.pangea.command.vanilla.admin.AdminCommand
 import hub.nebula.pangea.command.vanilla.misc.PangeaCommand
+import hub.nebula.pangea.command.vanilla.music.MusicCommand
 import mu.KotlinLogging
 import net.dv8tion.jda.api.interactions.commands.Command
 import net.dv8tion.jda.api.interactions.commands.localization.LocalizationFunction
@@ -41,5 +42,8 @@ class PangeaCommandManager(private val locales: LocalizationFunction, private va
 
         // ===[ Admin ]===
         register(AdminCommand())
+
+        // ===[ Music ]===
+        register(MusicCommand())
     }
 }

@@ -46,7 +46,7 @@ class PangeaComponentManager {
         if (targetUserId != it.user.idLong) {
             it.reply(true) {
                 pretty(
-                    "Você não pode apertar este botão."
+                    it.locale["commands.onlyUserCanInteractWithThisComponent", it.user.asMention, targetUserId.toString()]
                 )
             }
 

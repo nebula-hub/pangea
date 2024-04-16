@@ -5,6 +5,7 @@ import hub.nebula.pangea.command.PangeaSlashCommandDeclarationWrapper
 import hub.nebula.pangea.command.PangeaSlashCommandExecutor
 import hub.nebula.pangea.utils.Constants
 import hub.nebula.pangea.utils.pretty
+import net.dv8tion.jda.api.interactions.components.buttons.Button
 
 class PangeaCommand : PangeaSlashCommandDeclarationWrapper {
     override fun create() = command(
@@ -57,27 +58,40 @@ class PangeaCommand : PangeaSlashCommandDeclarationWrapper {
             val freeMemory = runtime.freeMemory()
             val usedMemory = totalMemory - freeMemory
 
-            context.sendEmbed {
-                title = context.locale["commands.command.pangea.info.embedTitle"]
-                description = context.locale["commands.command.pangea.info.embedDescription"]
-                color = Constants.DEFAULT_COLOR
-                thumbnail = context.jda.selfUser.effectiveAvatarUrl
+            context.reply {
+                embed {
+                    title = context.locale["commands.command.pangea.info.embedTitle"]
+                    description = context.locale["commands.command.pangea.info.embedDescription"]
+                    color = Constants.DEFAULT_COLOR
+                    thumbnail = context.jda.selfUser.effectiveAvatarUrl
 
-                field {
-                    name = context.locale["commands.command.pangea.info.embedServers"]
-                    value = "`${context.jda.guilds.size}`"
-                    inline = true
+                    field {
+                        name = context.locale["commands.command.pangea.info.embedServers"]
+                        value = "`${context.jda.guilds.size}`"
+                        inline = true
+                    }
+
+                    field {
+                        name = "Kotlin / JVM"
+                        value = "`${KotlinVersion.CURRENT} / ${System.getProperty("java.version")}`"
+                    }
+
+                    field {
+                        name = context.locale["commands.command.pangea.info.embedRAMUsage"]
+                        value = "`${usedMemory / 1024 / 1024}MB`"
+                    }
                 }
 
-                field {
-                    name = "Kotlin / JVM"
-                    value = "`${KotlinVersion.CURRENT} / ${System.getProperty("java.version")}`"
-                }
-
-                field {
-                    name = context.locale["commands.command.pangea.info.embedRAMUsage"]
-                    value = "`${usedMemory / 1024 / 1024}MB`"
-                }
+                actionRow(
+                    Button.link(
+                        "https://github.com/nebula-hub/pangea",
+                        context.locale["commands.command.pangea.info.sourceCode"]
+                    ),
+                    Button.link(
+                        "https://discord.com/oauth2/authorize?client_id=${context.jda.selfUser.idLong}&permissions=8&scope=bot",
+                        context.locale["commands.command.pangea.info.inviteMe"]
+                    )
+                )
             }
         }
     }

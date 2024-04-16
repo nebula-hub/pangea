@@ -1,9 +1,11 @@
 commands:
+  onlyUserCanInteractWithThisComponent: "This button isn't even for you! Get outta here"
   guildOnly: "This command can be used only in servers."
   noPermission: "You need the `{0}` permission to use this command."
   invalidUser: "The user `{0}` doesn't exist."
   hierarchyError: "My role is below the user's role that you want to punish."
   commandExecutedBy: "Command executed by {0}"
+  voiceChannelOnly: "You need to enter a voice channel first to use this command."
   buttons:
     expired: "It looks like the interaction has been expired... I guess you cannot use this button anymore."
     unban: "Unban"
@@ -14,6 +16,8 @@ commands:
         embedDescription: "Technical information for those who want to know... Maybe not that useful."
         embedServers: "Servers"
         embedRAMUsage: "RAM Usage"
+        sourceCode: "Source Code"
+        inviteMe: "Invite me to your server"
     admin:
       successfullyPunished: "Member was successfully punished."
       checkban:
@@ -26,3 +30,21 @@ commands:
       ban:
         banReason: "Member banned by {0}: {1}"
         noBanReason: "Member banned by {0}: None of us know why."
+    music:
+      thereIsntAnyMusicPlaying: "There is no music playing now."
+      nowPlaying:
+        embedFieldAuthor: "Author"
+        embedFieldDuration: "Duration"
+        embedFieldSource: "Origin"
+        terminated: "Fine, i'm out."
+        volumeChanged: "I changed the volume for you"
+        skipped: "You skipped the song"
+        volumeMax: "The volume is already at maximum"
+        volumeMin: "The volume is already at minimum"
+        musicQueue: ""
+        nowPlaying: "Now playing"
+      instance:
+        notFound: "There is no music playing now."
+      pages:
+        title: "Playlist - {0} musics"
+        description: "{0} • **[{1}]({2})** - {3} ({4})\n\n**What about you add more musics?** Use </music play:1229247971288289310>."

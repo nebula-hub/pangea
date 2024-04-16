@@ -13,12 +13,20 @@ data class GeneralConfig(
         val applicationId: Long,
         val clientSecret: String,
         val activities: List<PangeaActivity>,
-        val mainLand: MainLandConfig
+        val mainLand: MainLandConfig,
+        val comet: PangeaCometConfig
     ) {
         @Serializable
         data class PangeaActivity(
             val type: Int,
             val name: String
+        )
+
+        @Serializable
+        data class PangeaCometConfig(
+            val host: String,
+            val port: Int,
+            val password: String
         )
 
         @Serializable
