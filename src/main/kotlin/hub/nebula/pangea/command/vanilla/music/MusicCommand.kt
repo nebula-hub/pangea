@@ -5,22 +5,26 @@ import dev.arbjerg.lavalink.protocol.v4.Track
 import dev.minn.jda.ktx.coroutines.await
 import dev.minn.jda.ktx.interactions.commands.choice
 import dev.minn.jda.ktx.messages.Embed
+import dev.minn.jda.ktx.messages.invoke
 import dev.schlaubi.lavakord.rest.loadItem
 import hub.nebula.pangea.PangeaInstance
 import hub.nebula.pangea.api.music.PangeaPlayerManager
 import hub.nebula.pangea.command.PangeaCommandContext
 import hub.nebula.pangea.command.PangeaSlashCommandDeclarationWrapper
 import hub.nebula.pangea.command.PangeaSlashCommandExecutor
-import hub.nebula.pangea.utils.Constants
-import hub.nebula.pangea.utils.humanize
-import hub.nebula.pangea.utils.isValidUrl
-import hub.nebula.pangea.utils.pretty
+import hub.nebula.pangea.utils.*
 import kotlinx.coroutines.delay
+import mu.KotlinLogging
 import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.OptionData
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle
+import kotlin.reflect.jvm.jvmName
 
 class MusicCommand : PangeaSlashCommandDeclarationWrapper {
+    companion object {
+        val LOCALE_PREFIX = "commands.command.music"
+    }
+
     override fun create() = command(
         "music",
         "music.description"
@@ -33,13 +37,13 @@ class MusicCommand : PangeaSlashCommandDeclarationWrapper {
                 OptionData(
                     OptionType.STRING,
                     "name",
-                    "music.player.name.description",
+                    "music.play.name.description",
                     true
                 ),
                 OptionData(
                     OptionType.STRING,
                     "source",
-                    "music.player.source.description",
+                    "music.play.source.description",
                     false
                 ).choice("YouTube", "ytsearch")
                     .choice("Spotify", "spsearch")
@@ -65,6 +69,8 @@ class MusicCommand : PangeaSlashCommandDeclarationWrapper {
     }
 
     inner class MusicPlayCommandExecutor : PangeaSlashCommandExecutor() {
+        private val logger = KotlinLogging.logger(this::class.jvmName)
+
         override suspend fun execute(context: PangeaCommandContext) {
             if (context.guild == null) {
                 context.reply(true) {
@@ -103,7 +109,6 @@ class MusicCommand : PangeaSlashCommandDeclarationWrapper {
                 is LoadResult.TrackLoaded -> {
                     val isEmpty = instance.scheduler.queue.isEmpty()
 
-
                     sendPlayingTrackEmbed(context, item.data, isEmpty)
                 }
 
@@ -116,10 +121,41 @@ class MusicCommand : PangeaSlashCommandDeclarationWrapper {
                         instance.scheduler.queue.addAll(mutable)
                     }
 
-                    context.reply {
-                        pretty(
-                            "Adicionando ${item.data.tracks.size} músicas à fila!"
+                    val message = StringBuilder().apply {
+                        appendLine(
+                            pretty(
+                                context.locale["$LOCALE_PREFIX.play.playlistAdded", item.data.tracks.size.toString(), item.data.info.name]
+                            )
                         )
+                    }
+
+                    if (item.data.tracks.size > 10) {
+                        item.data.tracks.take(10).forEachIndexed { index, it ->
+                            message.appendLine(
+                                pretty(
+                                    context.locale["$LOCALE_PREFIX.play.playlistAddedDescription", (index + 1).toString(), it.info.title, it.info.uri.toString(), it.info.author, it.info.sourceName]
+                                )
+                            )
+                        }
+
+                        message.appendLine()
+                        message.appendLine(
+                            pretty(
+                                context.locale["$LOCALE_PREFIX.play.playlistMoreSongs", (item.data.tracks.size - 10).toString()]
+                            )
+                        )
+                    } else {
+                        item.data.tracks.forEachIndexed { index, it ->
+                            message.appendLine(
+                                pretty(
+                                    context.locale["$LOCALE_PREFIX.play.playlistAddedDescription", (index + 1).toString(), it.info.title, it.info.uri.toString(), it.info.author, it.info.sourceName]
+                                )
+                            )
+                        }
+                    }
+
+                    context.reply {
+                        content = message.toString()
                     }
                 }
 
@@ -135,16 +171,16 @@ class MusicCommand : PangeaSlashCommandDeclarationWrapper {
                     } else {
                         context.reply(true) {
                             pretty(
-                                "Nenhum resultado encontrado para a busca!"
+                                context.locale["$LOCALE_PREFIX.play.noMatches", query]
                             )
                         }
                     }
                 }
 
                 is LoadResult.NoMatches -> {
-                    context.reply {
+                    context.reply(true) {
                         pretty(
-                            "Nenhum resultado encontrado para a busca!"
+                            context.locale["$LOCALE_PREFIX.play.noMatches", query]
                         )
                     }
                 }
@@ -152,15 +188,17 @@ class MusicCommand : PangeaSlashCommandDeclarationWrapper {
                 is LoadResult.LoadFailed -> {
                     context.reply(true) {
                         pretty(
-                            "Algo deu errado ao tocar a música: `${item.data.message}`"
+                            context.locale["$LOCALE_PREFIX.play.loadFailed", item.data.message.toString()]
                         )
                     }
                 }
 
                 else -> {
+                    logger.info { "An error occurred when playing the track: ${item.data}" }
+
                     context.reply {
                         pretty(
-                            "Algo de errado aconteceu e eu não sei o que é! xd"
+                            context.locale["$LOCALE_PREFIX.play.loadFailedStackstrace", item.data.toString()]
                         )
                     }
                 }
@@ -175,14 +213,20 @@ class MusicCommand : PangeaSlashCommandDeclarationWrapper {
                 thumbnail = track.info.artworkUrl + "?size=2048"
 
                 footer {
-                    name = if (queueEmpty) "Tocando agora!" else "Música adicionada à fila!"
+                    name = if (queueEmpty) context.locale["$LOCALE_PREFIX.play.playingNow"] else context.locale["$LOCALE_PREFIX.play.addedToQueue"]
                 }
 
                 description = StringBuilder().apply {
-                    appendLine("· **Artista**: ${track.info.author}")
-                    appendLine("· **Duração**: ${track.info.length.humanize()}")
+                    appendLine(
+                        context.locale["$LOCALE_PREFIX.play.author", track.info.author]
+                    )
+                    appendLine(
+                        context.locale["$LOCALE_PREFIX.play.length", track.info.length.humanize()]
+                    )
                     appendLine()
-                    if (!queueEmpty) appendLine("· **Posição na fila**: ${PangeaInstance.pangeaPlayers[context.guild!!.idLong]!!.scheduler.queue.size}°")
+                    if (!queueEmpty) appendLine(
+                        context.locale["$LOCALE_PREFIX.play.queuePosition", PangeaInstance.pangeaPlayers[context.guild!!.idLong]!!.scheduler.queue.size.toString()]
+                    )
                 }.toString()
 
             }
@@ -205,7 +249,7 @@ class MusicCommand : PangeaSlashCommandDeclarationWrapper {
             if (instance == null) {
                 context.reply(true) {
                     pretty(
-                        context.locale["commands.music.instance"]
+                        context.locale["$LOCALE_PREFIX.instanceNotFound"]
                     )
                 }
                 return
@@ -219,9 +263,9 @@ class MusicCommand : PangeaSlashCommandDeclarationWrapper {
             if (pages.isNotEmpty()) {
                 context.reply {
                     embed {
-                        title = context.locale["commands.music.pages.title", "${instance.scheduler.queue.size}"]
+                        title = context.locale["$LOCALE_PREFIX.queue.title", instance.scheduler.queue.size.toString()]
                         color = Constants.DEFAULT_COLOR
-                        thumbnail = context.jda.selfUser.effectiveAvatarUrl
+                        thumbnail = context.guild.iconUrl() ?: context.jda.selfUser.effectiveAvatarUrl
 
                         description = if (pages[currentPage].size == 1) {
                             pages[currentPage].joinToString("\n") { track ->
@@ -231,7 +275,7 @@ class MusicCommand : PangeaSlashCommandDeclarationWrapper {
                                 val source = info.sourceName
                                 val uri = info.uri ?: "https://discord.com" // xd
 
-                                context.locale["commands.music.pages.description", title, author, source, uri]
+                                context.locale["$LOCALE_PREFIX.queue.onlyOneSongDescription", (instance.scheduler.queue.indexOf(track) + 1).toString(), title, uri, author, source]
                             }
                         } else {
                             pages[currentPage].joinToString("\n") { track ->
@@ -239,19 +283,25 @@ class MusicCommand : PangeaSlashCommandDeclarationWrapper {
                                 val title = info.title
                                 val author = info.author
                                 val source = info.sourceName
-                                val uri = info.uri
+                                val uri = info.uri ?: "https://discord.com" // xd
 
-                                "${instance.scheduler.queue.indexOf(track) + 1} • **[$title]($uri)** - $author ($source)"
+                                context.locale["$LOCALE_PREFIX.queue.description", (instance.scheduler.queue.indexOf(track) + 1).toString(), title, uri, author, source]
                             }
                         }
 
-                        footer {
-                            name = "Você está na página ${currentPage + 1} de ${pages.size}!"
+                        if (pages.isNotEmpty()) {
+                            footer {
+                                name = context.locale["$LOCALE_PREFIX.queue.currentPage", (currentPage + 1).toString(), pages.size.toString()]
+                            }
+                        } else {
+                            footer {
+                                name = context.locale["$LOCALE_PREFIX.queue.currentPage", 1.toString(), 1.toString()]
+                            }
                         }
 
                         field {
-                            name = "Tocando agora"
-                            value = instance.link.player.playingTrack?.info?.title ?: "Nenhuma música tocando no momento!"
+                            name = context.locale["$LOCALE_PREFIX.queue.nowPlaying"]
+                            value = "[${instance.link.player.playingTrack?.info?.title}](${instance.link.player.playingTrack?.info?.uri}) - ${instance.link.player.playingTrack?.info?.author} (${instance.link.player.playingTrack?.info?.sourceName})"
                             inline = true
                         }
                     }
@@ -264,18 +314,18 @@ class MusicCommand : PangeaSlashCommandDeclarationWrapper {
                                 } else {
                                     it.reply(true) {
                                         pretty(
-                                            "Você já está na primeira página!"
+                                            context.locale["$LOCALE_PREFIX.queue.alreadyOnFirstPage"]
                                         )
                                     }
                                 }
 
                                 val embed = Embed {
-                                    title = "Fila de músicas - ${instance.scheduler.queue.size} músicas"
+                                    title = context.locale["$LOCALE_PREFIX.queue.title", instance.scheduler.queue.size.toString()]
                                     color = Constants.DEFAULT_COLOR
-                                    thumbnail = context.jda.selfUser.effectiveAvatarUrl
+                                    thumbnail = context.guild.iconUrl() ?: context.jda.selfUser.effectiveAvatarUrl
 
                                     footer {
-                                        name = "Você está na página ${currentPage + 1} de ${pages.size}!"
+                                        name = context.locale["$LOCALE_PREFIX.queue.currentPage", (currentPage + 1).toString(), pages.size.toString()]
                                     }
 
                                     description = pages[currentPage].joinToString("\n") { track ->
@@ -285,12 +335,12 @@ class MusicCommand : PangeaSlashCommandDeclarationWrapper {
                                         val source = info.sourceName
                                         val uri = info.uri
 
-                                        "${instance.scheduler.queue.indexOf(track) + 1} • **[$title]($uri)** - $author ($source)"
+                                        context.locale["$LOCALE_PREFIX.queue.description", (instance.scheduler.queue.indexOf(track) + 1).toString(), title, uri.toString(), author, source]
                                     }
 
                                     field {
-                                        name = "Tocando agora"
-                                        value = instance.link.player.playingTrack?.info?.title ?: "Nenhuma música tocando no momento!"
+                                        name = context.locale["$LOCALE_PREFIX.queue.playingNow"]
+                                        value = instance.link.player.playingTrack?.info?.title ?: context.locale["$LOCALE_PREFIX.queue.noSongPlaying"]
                                         inline = true
                                     }
                                 }
@@ -304,18 +354,18 @@ class MusicCommand : PangeaSlashCommandDeclarationWrapper {
                                 } else {
                                     context.reply(true) {
                                         pretty(
-                                            "Você já está na última página!"
+                                            context.locale["$LOCALE_PREFIX.queue.alreadyOnLastPage"]
                                         )
                                     }
                                 }
 
                                 val embed = Embed {
-                                    title = "Fila de músicas"
+                                    title = context.locale["$LOCALE_PREFIX.queue.title", instance.scheduler.queue.size.toString()]
                                     color = Constants.DEFAULT_COLOR
-                                    thumbnail = context.jda.selfUser.effectiveAvatarUrl
+                                    thumbnail = context.guild.iconUrl() ?: context.jda.selfUser.effectiveAvatarUrl
 
                                     footer {
-                                        name = "Você está na página ${currentPage + 1} de ${pages.size}!"
+                                        name = context.locale["$LOCALE_PREFIX.queue.currentPage", (currentPage + 1).toString(), pages.size.toString()]
                                     }
 
                                     description = pages[currentPage].joinToString("\n") { track ->
@@ -325,12 +375,12 @@ class MusicCommand : PangeaSlashCommandDeclarationWrapper {
                                         val source = info.sourceName
                                         val uri = info.uri
 
-                                        "${instance.scheduler.queue.indexOf(track) + 1} • **[$title]($uri)** - $author ($source)"
+                                        context.locale["$LOCALE_PREFIX.queue.description", (instance.scheduler.queue.indexOf(track) + 1).toString(), title, uri.toString(), author, source]
                                     }
 
                                     field {
-                                        name = context.locale["commands.command.music.nowPlaying.nowPlaying"]
-                                        value = instance.link.player.playingTrack?.info?.title ?: context.locale["commands.command.music.instanceNotFound"]
+                                        name = context.locale["$LOCALE_PREFIX.queue.playingNow"]
+                                        value = instance.link.player.playingTrack?.info?.title ?: context.locale["$LOCALE_PREFIX.queue.noSongPlaying"]
                                         inline = true
                                     }
                                 }
@@ -343,13 +393,13 @@ class MusicCommand : PangeaSlashCommandDeclarationWrapper {
                 if (instance.link.player.playingTrack != null) {
                     context.reply {
                         embed {
-                            title = context.locale["commands.command.music.nowPlaying.musicQueue"]
+                            title = context.locale["$LOCALE_PREFIX.nowPlaying.musicQueue"]
                             color = Constants.DEFAULT_COLOR
-                            thumbnail = context.jda.selfUser.effectiveAvatarUrl
+                            thumbnail = context.guild.iconUrl() ?: context.jda.selfUser.effectiveAvatarUrl
 
                             field {
-                                name = context.locale["commands.command.music.nowPlaying.nowPlaying"]
-                                value = instance.link.player.playingTrack?.info?.title ?: context.locale["commands.command.music.instanceNotFound"]
+                                name = context.locale["$LOCALE_PREFIX.nowPlaying.nowPlaying"]
+                                value = instance.link.player.playingTrack?.info?.title ?: context.locale["$LOCALE_PREFIX.instanceNotFound"]
                                 inline = true
                             }
                         }
@@ -357,7 +407,7 @@ class MusicCommand : PangeaSlashCommandDeclarationWrapper {
                 } else {
                     context.reply {
                         pretty(
-                            context.locale["commands.command.music.instanceNotFound"]
+                            context.locale["$LOCALE_PREFIX.queue.noSongsInQueue"]
                         )
                     }
                 }
@@ -395,20 +445,24 @@ class MusicCommand : PangeaSlashCommandDeclarationWrapper {
                         val info = track.info
 
                         url = info.uri
-                        title = "${info.title} (${info.sourceName})"
+                        title = context.locale["$LOCALE_PREFIX.nowPlaying.title", info.title, info.sourceName]
                         color = Constants.DEFAULT_COLOR
                         thumbnail = track.info.artworkUrl + "?size=2048"
 
                         description = StringBuilder().apply {
-                            appendLine("· **${context.locale["commands.command.music.nowPlaying.embedFieldAuthor"]}**: ${info.author}")
-                            appendLine("· **${context.locale["commands.command.music.nowPlaying.embedFieldDuration"]}**: ${info.length.humanize()}")
+                            appendLine(
+                                context.locale["$LOCALE_PREFIX.nowPlaying.author", info.author]
+                            )
+                            appendLine(
+                                context.locale["$LOCALE_PREFIX.nowPlaying.length", info.length.humanize()]
+                            )
                         }.toString()
                     }
                 }
             } else {
                 context.reply(true) {
                     pretty(
-                        context.locale["commands.command.music.thereIsntAnyMusicPlaying"]
+                        context.locale["$LOCALE_PREFIX.thereIsntAnySongPlaying"]
                     )
                 }
             }
