@@ -53,11 +53,7 @@ class PangeaInstance(
         jda = discord
         lavakord = lava
         interactionManager = PangeaComponentManager()
-        val locales = ResourceBundleLocalizationFunction
-            .fromBundles("commands", DiscordLocale.PORTUGUESE_BRAZILIAN, DiscordLocale.ENGLISH_US)
-            .build()
-
-        commandManager = PangeaCommandManager(locales, this)
+        commandManager = PangeaCommandManager(this)
 
         jda.addEventListener(
             MajorEventListener(this)

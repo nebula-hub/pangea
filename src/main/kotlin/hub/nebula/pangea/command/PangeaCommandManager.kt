@@ -7,10 +7,9 @@ import hub.nebula.pangea.command.vanilla.misc.PangeaCommand
 import hub.nebula.pangea.command.vanilla.music.MusicCommand
 import mu.KotlinLogging
 import net.dv8tion.jda.api.interactions.commands.Command
-import net.dv8tion.jda.api.interactions.commands.localization.LocalizationFunction
 import kotlin.reflect.jvm.jvmName
 
-class PangeaCommandManager(private val locales: LocalizationFunction, private val pangea: PangeaInstance) {
+class PangeaCommandManager(private val pangea: PangeaInstance) {
     val logger = KotlinLogging.logger(this::class.jvmName)
     val commands = mutableListOf<PangeaSlashCommandDeclarationWrapper>()
 
@@ -28,7 +27,6 @@ class PangeaCommandManager(private val locales: LocalizationFunction, private va
         commands.forEach { command ->
             action.addCommands(
                 command.create().build()
-                    .setLocalizationFunction(locales)
             )
             logger.info { "Registered /${command.create().name} command!" }
         }

@@ -1,48 +1,107 @@
 commands:
-  onlyUserCanInteractWithThisComponent: "Esse botão nem é pra você, sai daqui!"
-  guildOnly: "Este comando só pode ser usado em servidores."
-  noPermission: "Você precisa da permissão `{0}` para usar este comando."
+  onlyUserCanInteractWithThisComponent: "Este botão não é nem para você! Saia daqui."
+  guildOnly: "Esse comando pode ser usado somente em servidores."
+  noPermission: "Você precisa da permissão `{0}` para usar esse comando."
   invalidUser: "O usuário `{0}` não existe."
-  hierarchyError: "Meu cargo está abaixo da pessoa que quer punir."
+  hierarchyError: "Minha função está abaixo da função do usuário que você deseja punir."
   commandExecutedBy: "Comando executado por {0}"
-  voiceChannelOnly: "Você precisa estar em um canal de voz primeiro pra usar este comando."
+  voiceChannelOnly: "Você precisa entrar em um canal de voz primeiro para usar esse comando."
+  common:
+    enabled: "Sim"
+    disabled: "Não"
   buttons:
     expired: "Parece que a interação expirou... Algo me diz que você não pode mais usar este botão."
     unban: "Desbanir"
   command:
     pangea:
+      description: "Comandos relacionados ao Pangea."
+      ping:
+        description: "Pangea » Verifica a latência do bot."
       info:
+        description: "Pangea » Mostrar informações sobre o bot."
         embedTitle: "Minhas Informações"
-        embedDescription: "Informaçõs técnicas pra quem quer saber... Talvez nem tão úteis assim."
+        embedDescription: "Informações técnicas para aqueles que querem saber... Talvez não seja tão útil."
         embedServers: "Servidores"
         embedRAMUsage: "Uso de RAM"
-        sourceCode: "Código Fonte"
-        inviteMe: "Me convide para seu servidor"
+        sourceCode: "Código-fonte"
+        inviteMe: "Convide-me para seu servidor"
     admin:
-      successfullyPunished: "Membro punido com sucesso."
+      description: "Comandos relacionados à administração."
+      successfullyPunished: "O membro foi punido com sucesso."
       checkban:
         notBanned: "Este usuário não está banido."
-        userBanned: "Usuário Banido"
-        name: "Nome do Usuário"
+        userBanned: "Banido"
+        name: "Nome do usuário"
         reason: "Motivo"
         noReason: "Nenhum motivo especificado."
-        successfullyUnban: "Membro desbanido com sucesso."
+        successfullyUnban: "Membro desbanido com êxito."
+        description: "Administração » Verificar se um usuário está banido."
+        options:
+          member_id:
+            description: "O ID do malfeitor a ser verificado."
       ban:
-        banReason: "Membro punido por {0}: {1}"
-        noBanReason: "Membro punido por {0}: Nenhum de nós sabemos o porquê."
-      music:
-        thereIsntAnyMusicPlaying: "Não há música tocando agora."
-        nowPlaying:
-          embedFieldAuthor: "Autor"
-          embedFieldDuration: "Duração"
-          embedFieldSource: "Origem"
-          terminated: "Tudo bem, estou saíndo."
-          volumeChanged: "Eu mudei o volume pra você."
-          skipped: "Você pulou a música"
-          volumeMax: "O volume já está no máximo"
-          volumeMin: "O volume já está no mínimo"
-        instance:
-          notFound: "Não há música tocando agora."
-        pages:
-          embedFieldTitle: "Playlist - {0} músicas"
-          description: "{0} • **[{1}]({2})** - {3} ({4})\n\n**Que tal você adicionar mais músicas?** Use </music play:1229247971288289310>."
+        banReason: "Membro banido por {0}: {1}"
+        noBanReason: "Membro banido por {0}: Nenhum de nós sabe o motivo."
+        description: "Administração » Banir um membro."
+        options:
+          member:
+            description: "O malfeitor a ser banido."
+          reason:
+            description: "O motivo da punição. (Opcional)"
+    music:
+      description: "Comandos relacionados a música"
+      thereIsntAnySongPlaying: "Não tem nenhuma música tocando agora"
+      instanceNotFound: "Não tem nenhuma música tocando agora"
+      play:
+        description: "Música » Toca qualquer música do YouTube, SoundCloud ou Spotify (padrão)."
+        author: "· **Artista**: {0}"
+        length: "· **Duração**: {0}"
+        queuePosition: "· **Posição na Fila**: {0}"
+        playlistAdded: "Playlist **[{0}]({1})** adicionada a fila."
+        playlistAddedDescription: "{0} · **[{1}]({2})** - {3} {4}"
+        playlistMoreSongs: "E mais `{0}` músicas."
+        noMatches: "Não encontrei nenhuma música parecida com `{0}`."
+        loadFailed: "Não consegui tocar a música, desculpe...\n\nError: `{0}`"
+        loadFailedStackstrace: "Não consegui tocar a música, desculpe...\n\nError: ```{0}```"
+        options:
+          name:
+            description: "O nome da música a ser reproduzida (Suporta URLs)."
+          source:
+            description: "A origem da música a ser reproduzida."
+      skip:
+        description: "Música » Pula a música que está tocando no momento."
+        noSongsToSkip: "Não tem nenhuma música pra ser pulada."
+        skipped: "Você pulou a música com sucesso."
+      stop:
+        description: "Música » Para de tocar as músicas."
+        stopped: "A música atual foi parada e eu estou saindo."
+      pause:
+        description: "Música » Pausa a música que está tocando no momento."
+        paused: "A música foi pausada."
+        alreadyPaused: "Esta música já está pausada."
+      resume:
+        description: "Música » Retoma a música que foi pausada."
+        resumed: "A música foi retomada."
+        alreadyResumed: "A música já está tocando."
+      queue:
+        description: "Música » Mostra as músicas que vão tocar em sequência."
+        title: "Playlist - {0} Músicas"
+        onlyOneSongDescription: "{0} • **[{1}]({2})** - {3} ({4})\n\n**Vamos lá, o que acha de adicionar mais músicas?**"
+        embedDescription: "{0} • **[{1}]({2})** - {3} ({4})"
+        currentPage: "Você está na página {0} de {1}"
+        playingNow: "Tocando agora"
+        noSongPlaying: "Não tem nenhuma música tocando agora."
+        alreadyOnFirstPage: "Você já está na primeira página."
+        alreadyOnLastPage: "Você já está na última página."
+        noSongsInQueue: "Não tem músicas na fila."
+      nowplaying:
+        description: "Música » Mostra a música que está tocando no momento."
+        title: "{0} ({1})"
+        author: "· **Artista**: {0}"
+        length: "· **Duração**: {0}"
+        embedFieldAuthor: "Artista"
+        embedFieldDuration: "Duração"
+        embedFieldSource: "Origem"
+        terminated: "OK, estou saindo."
+        nowPlaying: "Tocando agora"
+        effects: "Efeitos"

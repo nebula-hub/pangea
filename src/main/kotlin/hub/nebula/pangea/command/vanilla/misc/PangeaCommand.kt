@@ -8,20 +8,26 @@ import hub.nebula.pangea.utils.pretty
 import net.dv8tion.jda.api.interactions.components.buttons.Button
 
 class PangeaCommand : PangeaSlashCommandDeclarationWrapper {
+    companion object {
+        val LOCALE_PREFIX = "commands.command.pangea"
+    }
+
     override fun create() = command(
         "pangea",
         "pangea.description"
     ) {
         subCommand(
             "ping",
-            "pangea.ping.description"
+            "pangea.ping.description",
+            this@command.name
         ) {
             executor = PangeaPingCommandExecutor()
         }
 
         subCommand(
             "info",
-            "pangea.info.description"
+            "pangea.info.description",
+            this@command.name
         ) {
             executor = PangeaInfoCommandExecutor()
         }
@@ -60,13 +66,13 @@ class PangeaCommand : PangeaSlashCommandDeclarationWrapper {
 
             context.reply {
                 embed {
-                    title = context.locale["commands.command.pangea.info.embedTitle"]
-                    description = context.locale["commands.command.pangea.info.embedDescription"]
+                    title = context.locale["$LOCALE_PREFIX.info.embedTitle"]
+                    description = context.locale["$LOCALE_PREFIX.info.embedDescription"]
                     color = Constants.DEFAULT_COLOR
                     thumbnail = context.jda.selfUser.effectiveAvatarUrl
 
                     field {
-                        name = context.locale["commands.command.pangea.info.embedServers"]
+                        name = context.locale["$LOCALE_PREFIX.info.embedServers"]
                         value = "`${context.jda.guilds.size}`"
                         inline = true
                     }
@@ -77,7 +83,7 @@ class PangeaCommand : PangeaSlashCommandDeclarationWrapper {
                     }
 
                     field {
-                        name = context.locale["commands.command.pangea.info.embedRAMUsage"]
+                        name = context.locale["$LOCALE_PREFIX.info.embedRAMUsage"]
                         value = "`${usedMemory / 1024 / 1024}MB`"
                     }
                 }
@@ -85,11 +91,11 @@ class PangeaCommand : PangeaSlashCommandDeclarationWrapper {
                 actionRow(
                     Button.link(
                         "https://github.com/nebula-hub/pangea",
-                        context.locale["commands.command.pangea.info.sourceCode"]
+                        context.locale["$LOCALE_PREFIX.info.sourceCode"]
                     ),
                     Button.link(
                         "https://discord.com/oauth2/authorize?client_id=${context.jda.selfUser.idLong}&permissions=8&scope=bot",
-                        context.locale["commands.command.pangea.info.inviteMe"]
+                        context.locale["$LOCALE_PREFIX.info.inviteMe"]
                     )
                 )
             }

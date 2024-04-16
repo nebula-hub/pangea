@@ -16,6 +16,10 @@ import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle
 import java.util.concurrent.TimeUnit
 
 class AdminCommand : PangeaSlashCommandDeclarationWrapper {
+    companion object {
+        val LOCALE_PREFIX = "commands.command.admin"
+    }
+
     override fun create() = command(
         "admin",
         "admin.description"
@@ -30,27 +34,25 @@ class AdminCommand : PangeaSlashCommandDeclarationWrapper {
 
         subCommand(
             "ban",
-            "admin.ban.description"
+            "admin.ban.description",
+            "admin"
         ) {
-            options.apply {
-                add(
-                    OptionData(
-                        OptionType.USER,
-                        "member",
-                        "admin.ban.member.description",
-                        true
-                    )
-                )
-
-                add(
-                    OptionData(
-                        OptionType.STRING,
-                        "reason",
-                        "admin.ban.reason.description",
-                        false
-                    )
-                )
-            }
+            addOption(
+                OptionData(
+                    OptionType.USER,
+                    "member",
+                    "admin.ban.member.description",
+                    true
+                ),
+                OptionData(
+                    OptionType.STRING,
+                    "reason",
+                    "admin.ban.reason.description",
+                    false
+                ),
+                isSubcommand = true,
+                baseName = this@command.name
+            )
 
             executor = AdminBanCommandExecutor()
         }
@@ -59,16 +61,16 @@ class AdminCommand : PangeaSlashCommandDeclarationWrapper {
             "checkban",
             "admin.checkban.description"
         ) {
-            options.apply {
-                add(
-                    OptionData(
-                        OptionType.STRING,
-                        "member_id",
-                        "admin.checkban.member_id.description",
-                        true
-                    )
-                )
-            }
+            addOption(
+                OptionData(
+                    OptionType.STRING,
+                    "member_id",
+                    "admin.checkban.member_id.description",
+                    true
+                ),
+                isSubcommand = true,
+                baseName = this@command.name
+            )
 
             executor = AdminCheckBanCommandExecutor()
         }
@@ -180,7 +182,7 @@ class AdminCommand : PangeaSlashCommandDeclarationWrapper {
             }
 
             if (queryBan == null) {
-                context.reply {
+                context.reply(true) {
                     pretty(
                         context.locale["commands.command.admin.checkban.notBanned"]
                     )

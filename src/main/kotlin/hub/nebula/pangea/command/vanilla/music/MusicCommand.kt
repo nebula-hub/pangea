@@ -12,6 +12,7 @@ import hub.nebula.pangea.api.music.PangeaPlayerManager
 import hub.nebula.pangea.command.PangeaCommandContext
 import hub.nebula.pangea.command.PangeaSlashCommandDeclarationWrapper
 import hub.nebula.pangea.command.PangeaSlashCommandExecutor
+import hub.nebula.pangea.command.component.PangeaButtonContext
 import hub.nebula.pangea.utils.*
 import kotlinx.coroutines.delay
 import mu.KotlinLogging
@@ -27,27 +28,30 @@ class MusicCommand : PangeaSlashCommandDeclarationWrapper {
 
     override fun create() = command(
         "music",
-        "music.description"
+        "$LOCALE_PREFIX.description"
     ) {
         subCommand(
             "play",
-            "music.play.description"
+            "$LOCALE_PREFIX.play.description",
+            this@command.name
         ) {
             addOption(
                 OptionData(
                     OptionType.STRING,
                     "name",
-                    "music.play.name.description",
+                    "$LOCALE_PREFIX.play.name.description",
                     true
                 ),
                 OptionData(
                     OptionType.STRING,
                     "source",
-                    "music.play.source.description",
+                    "$LOCALE_PREFIX.play.source.description",
                     false
                 ).choice("YouTube", "ytsearch")
                     .choice("Spotify", "spsearch")
-                    .choice("SoundCloud", "scsearch")
+                    .choice("SoundCloud", "scsearch"),
+                isSubcommand = true,
+                baseName = this@command.name
             )
 
             executor = MusicPlayCommandExecutor()
@@ -55,16 +59,50 @@ class MusicCommand : PangeaSlashCommandDeclarationWrapper {
 
         subCommand(
             "queue",
-            "music.queue.description"
+            "$LOCALE_PREFIX.queue.description",
+            this@command.name
         ) {
             executor = MusicQueueCommandExecutor()
         }
 
         subCommand(
             "nowplaying",
-            "music.nowplaying.description"
+            "$LOCALE_PREFIX.nowplaying.description",
+            this@command.name
         ) {
             executor = MusicNowPlayingCommandExecutor()
+        }
+
+        subCommand(
+            "skip",
+            "$LOCALE_PREFIX.skip.description",
+            this@command.name
+        ) {
+            executor = MusicSkipCommandExecutor()
+        }
+
+        subCommand(
+            "stop",
+            "$LOCALE_PREFIX.stop.description",
+            this@command.name
+        ) {
+            executor = MusicStopCommandExecutor()
+        }
+
+        subCommand(
+            "pause",
+            "$LOCALE_PREFIX.pause.description",
+            this@command.name
+        ) {
+            executor = MusicPauseCommandExecutor()
+        }
+
+        subCommand(
+            "resume",
+            "$LOCALE_PREFIX.resume.description",
+            this@command.name
+        ) {
+            executor = MusicResumeCommandExecutor()
         }
     }
 
@@ -121,40 +159,34 @@ class MusicCommand : PangeaSlashCommandDeclarationWrapper {
                         instance.scheduler.queue.addAll(mutable)
                     }
 
-                    val message = StringBuilder().apply {
-                        appendLine(
-                            pretty(
-                                context.locale["$LOCALE_PREFIX.play.playlistAdded", item.data.info.name, query]
-                            )
-                        )
-                    }
+                    val message = StringBuilder()
 
                     if (item.data.tracks.size > 10) {
                         item.data.tracks.take(10).forEachIndexed { index, it ->
                             message.appendLine(
-                                pretty(
-                                    context.locale["$LOCALE_PREFIX.play.playlistAddedDescription", (index + 1).toString(), it.info.title, it.info.uri.toString(), it.info.author, it.info.sourceName]
-                                )
+                                context.locale["$LOCALE_PREFIX.play.playlistAddedDescription", (index + 1).toString(), it.info.title, it.info.uri.toString(), it.info.author, it.info.sourceName]
                             )
                         }
 
                         message.appendLine()
                         message.appendLine(
-                            pretty(
-                                context.locale["$LOCALE_PREFIX.play.playlistMoreSongs", (item.data.tracks.size - 10).toString()]
-                            )
+                            context.locale["$LOCALE_PREFIX.play.playlistMoreSongs", (item.data.tracks.size - 10).toString()]
                         )
                     } else {
                         item.data.tracks.forEachIndexed { index, it ->
                             message.appendLine(
-                                pretty(
-                                    context.locale["$LOCALE_PREFIX.play.playlistAddedDescription", (index + 1).toString(), it.info.title, it.info.uri.toString(), it.info.author, it.info.sourceName]
-                                )
+                                context.locale["$LOCALE_PREFIX.play.playlistAddedDescription", (index + 1).toString(), it.info.title, it.info.uri.toString(), it.info.author, it.info.sourceName]
                             )
                         }
                     }
 
                     context.reply {
+                        embed {
+                            title = context.locale["$LOCALE_PREFIX.play.playlistAdded", item.data.info.name, query]
+                            color = Constants.DEFAULT_COLOR
+                            description = message.toString()
+                        }
+
                         content = message.toString()
                     }
                 }
@@ -285,7 +317,7 @@ class MusicCommand : PangeaSlashCommandDeclarationWrapper {
                                 val source = info.sourceName
                                 val uri = info.uri ?: "https://discord.com" // xd
 
-                                context.locale["$LOCALE_PREFIX.queue.description", (instance.scheduler.queue.indexOf(track) + 1).toString(), title, uri, author, source]
+                                context.locale["$LOCALE_PREFIX.queue.embedDescription", (instance.scheduler.queue.indexOf(track) + 1).toString(), title, uri, author, source]
                             }
                         }
 
@@ -335,7 +367,7 @@ class MusicCommand : PangeaSlashCommandDeclarationWrapper {
                                         val source = info.sourceName
                                         val uri = info.uri
 
-                                        context.locale["$LOCALE_PREFIX.queue.description", (instance.scheduler.queue.indexOf(track) + 1).toString(), title, uri.toString(), author, source]
+                                        context.locale["$LOCALE_PREFIX.queue.embedDescription", (instance.scheduler.queue.indexOf(track) + 1).toString(), title, uri.toString(), author, source]
                                     }
 
                                     field {
@@ -375,7 +407,7 @@ class MusicCommand : PangeaSlashCommandDeclarationWrapper {
                                         val source = info.sourceName
                                         val uri = info.uri
 
-                                        context.locale["$LOCALE_PREFIX.queue.description", (instance.scheduler.queue.indexOf(track) + 1).toString(), title, uri.toString(), author, source]
+                                        context.locale["$LOCALE_PREFIX.queue.embedDescription", (instance.scheduler.queue.indexOf(track) + 1).toString(), title, uri.toString(), author, source]
                                     }
 
                                     field {
@@ -431,7 +463,7 @@ class MusicCommand : PangeaSlashCommandDeclarationWrapper {
             if (instance == null) {
                 context.reply(true) {
                     pretty(
-                        context.locale["commands.command.music.instanceNotFound"]
+                        context.locale["$LOCALE_PREFIX.instanceNotFound"]
                     )
                 }
                 return
@@ -445,24 +477,308 @@ class MusicCommand : PangeaSlashCommandDeclarationWrapper {
                         val info = track.info
 
                         url = info.uri
-                        title = context.locale["$LOCALE_PREFIX.nowPlaying.title", info.title, info.sourceName]
+                        title = context.locale["$LOCALE_PREFIX.nowplaying.title", info.title, info.sourceName]
                         color = Constants.DEFAULT_COLOR
                         thumbnail = track.info.artworkUrl + "?size=2048"
 
                         description = StringBuilder().apply {
                             appendLine(
-                                context.locale["$LOCALE_PREFIX.nowPlaying.author", info.author]
+                                context.locale["$LOCALE_PREFIX.nowplaying.author", info.author]
                             )
                             appendLine(
-                                context.locale["$LOCALE_PREFIX.nowPlaying.length", info.length.humanize()]
+                                context.locale["$LOCALE_PREFIX.nowplaying.length", info.length.humanize()]
                             )
                         }.toString()
+
+                        field {
+                            name = context.locale["$LOCALE_PREFIX.nowplaying.effects"]
+                            value = StringBuilder().apply {
+                                appendLine("· **Bass Boost**: ${instance.link.player.filters.equalizers.any { it.band == 1 }.toLocalized(context)}")
+                                appendLine("· **8D**: ${(instance.link.player.filters.rotation != null).toLocalized(context)}")
+                                appendLine("· **Nightcore**: ${(instance.link.player.filters.timescale != null).toLocalized(context)}")
+                                appendLine("· **Vaporwave**: ${(instance.link.player.filters.timescale != null).toLocalized(context)}")
+                            }.toString()
+                        }
                     }
+
+                    actionRow(
+                        context.pangea.interactionManager
+                            .createButtonForUser(context.user, ButtonStyle.PRIMARY, "BB") {
+                                val currentState = PangeaInstance.pangeaPlayers[context.guild.idLong]
+
+                                if (currentState == null) {
+                                    it.reply(true) {
+                                        pretty(
+                                            it.locale["$LOCALE_PREFIX.instanceNotFound"]
+                                        )
+                                    }
+                                    return@createButtonForUser
+                                }
+
+                                if (instance.link.player.filters.equalizers.any { eq -> eq.band == 1 }) {
+                                    instance.scheduler.toggleBassBoost(false)
+                                } else {
+                                    instance.scheduler.toggleBassBoost(true)
+                                }
+
+                                it.deferEdit().editOriginalEmbeds(
+                                    createNowPlayingEmbed(it, instance, track)
+                                ).await()
+                            },
+                        context.pangea.interactionManager
+                            .createButtonForUser(context.user, ButtonStyle.PRIMARY, "8D") {
+                                val currentState = PangeaInstance.pangeaPlayers[context.guild.idLong]
+
+                                if (currentState == null) {
+                                    it.reply(true) {
+                                        pretty(
+                                            it.locale["$LOCALE_PREFIX.instanceNotFound"]
+                                        )
+                                    }
+                                    return@createButtonForUser
+                                }
+
+                                if (instance.link.player.filters.rotation != null) {
+                                    instance.scheduler.toggle8D(false)
+                                } else {
+                                    instance.scheduler.toggle8D(true)
+                                }
+
+                                it.deferEdit().editOriginalEmbeds(
+                                    createNowPlayingEmbed(it, instance, track)
+                                ).await()
+                            },
+                        context.pangea.interactionManager
+                            .createButtonForUser(context.user, ButtonStyle.PRIMARY, "Nightcore") {
+                                val currentState = PangeaInstance.pangeaPlayers[context.guild.idLong]
+
+                                if (currentState == null) {
+                                    it.reply(true) {
+                                        pretty(
+                                            it.locale["$LOCALE_PREFIX.instanceNotFound"]
+                                        )
+                                    }
+                                    return@createButtonForUser
+                                }
+
+                                if (instance.link.player.filters.timescale != null) {
+                                    instance.scheduler.toggleNightcore(false)
+                                } else {
+                                    instance.scheduler.toggleNightcore(true)
+                                }
+
+                                it.deferEdit().editOriginalEmbeds(
+                                    createNowPlayingEmbed(it, instance, track)
+                                ).await()
+                            },
+                        context.pangea.interactionManager
+                            .createButtonForUser(context.user, ButtonStyle.PRIMARY, "Vaporwave") {
+                                val currentState = PangeaInstance.pangeaPlayers[context.guild.idLong]
+
+                                if (currentState == null) {
+                                    it.reply(true) {
+                                        pretty(
+                                            it.locale["$LOCALE_PREFIX.instanceNotFound"]
+                                        )
+                                    }
+                                    return@createButtonForUser
+                                }
+
+                                if (instance.link.player.filters.timescale != null) {
+                                    instance.scheduler.toggleVaporwave(false)
+                                } else {
+                                    instance.scheduler.toggleVaporwave(true)
+                                }
+
+                                it.deferEdit().editOriginalEmbeds(
+                                    createNowPlayingEmbed(it, instance, track)
+                                ).await()
+                            }
+                    )
                 }
             } else {
                 context.reply(true) {
                     pretty(
                         context.locale["$LOCALE_PREFIX.thereIsntAnySongPlaying"]
+                    )
+                }
+            }
+        }
+
+        private fun createNowPlayingEmbed(context: PangeaButtonContext, instance: PangeaPlayerManager, track: Track) = Embed {
+            val info = track.info
+
+            url = info.uri
+            title = context.locale["$LOCALE_PREFIX.nowplaying.title", info.title, info.sourceName]
+            color = Constants.DEFAULT_COLOR
+            thumbnail = track.info.artworkUrl + "?size=2048"
+
+            description = StringBuilder().apply {
+                appendLine(
+                    context.locale["$LOCALE_PREFIX.nowplaying.author", info.author]
+                )
+                appendLine(
+                    context.locale["$LOCALE_PREFIX.nowplaying.length", info.length.humanize()]
+                )
+            }.toString()
+
+            field {
+                name = context.locale["$LOCALE_PREFIX.nowplaying.effects"]
+                value = StringBuilder().apply {
+                    appendLine("· **Bass Boost**: ${instance.link.player.filters.equalizers.any { it.band == 1 }.toLocalized(context)}")
+                    appendLine("· **8D**: ${(instance.link.player.filters.rotation != null).toLocalized(context)}")
+                    appendLine("· **Nightcore**: ${(instance.link.player.filters.timescale != null && instance.link.player.filters.timescale!!.pitch == 1.2 ).toLocalized(context)}")
+                    appendLine("· **Vaporwave**: ${(instance.link.player.filters.timescale != null && instance.link.player.filters.timescale!!.pitch == 0.8).toLocalized(context)}")
+                }.toString()
+            }
+        }
+    }
+
+    inner class MusicSkipCommandExecutor : PangeaSlashCommandExecutor() {
+        override suspend fun execute(context: PangeaCommandContext) {
+            if (context.guild == null) {
+                context.reply(true) {
+                    pretty(
+                        context.locale["commands.guildOnly"]
+                    )
+                }
+                return
+            }
+
+            val instance = PangeaInstance.pangeaPlayers[context.guild.idLong]
+
+            if (instance == null) {
+                context.reply(true) {
+                    pretty(
+                        context.locale["$LOCALE_PREFIX.instanceNotFound"]
+                    )
+                }
+                return
+            }
+
+            if (instance.link.player.playingTrack != null) {
+                instance.link.player.stopTrack()
+                context.reply(true) {
+                    pretty(
+                        context.locale["$LOCALE_PREFIX.skip.skipped"]
+                    )
+                }
+            } else {
+                context.reply(true) {
+                    pretty(
+                        context.locale["$LOCALE_PREFIX.skip.noSongsToSkip"]
+                    )
+                }
+            }
+        }
+    }
+
+    inner class MusicStopCommandExecutor : PangeaSlashCommandExecutor() {
+        override suspend fun execute(context: PangeaCommandContext) {
+            if (context.guild == null) {
+                context.reply(true) {
+                    pretty(
+                        context.locale["commands.guildOnly"]
+                    )
+                }
+                return
+            }
+
+            val instance = PangeaInstance.pangeaPlayers[context.guild.idLong]
+
+            if (instance == null) {
+                context.reply(true) {
+                    pretty(
+                        context.locale["$LOCALE_PREFIX.instanceNotFound"]
+                    )
+                }
+                return
+            }
+
+            instance.scheduler.terminate()
+
+            context.reply(true) {
+                pretty(
+                    context.locale["$LOCALE_PREFIX.stop.stopped"]
+                )
+            }
+        }
+    }
+
+    inner class MusicPauseCommandExecutor : PangeaSlashCommandExecutor() {
+        override suspend fun execute(context: PangeaCommandContext) {
+            if (context.guild == null) {
+                context.reply(true) {
+                    pretty(
+                        context.locale["commands.guildOnly"]
+                    )
+                }
+                return
+            }
+
+            val instance = PangeaInstance.pangeaPlayers[context.guild.idLong]
+
+            if (instance == null) {
+                context.reply(true) {
+                    pretty(
+                        context.locale["$LOCALE_PREFIX.instanceNotFound"]
+                    )
+                }
+                return
+            }
+
+            if (instance.link.player.paused) {
+                context.reply(true) {
+                    pretty(
+                        context.locale["$LOCALE_PREFIX.pause.alreadyPaused"]
+                    )
+                }
+            } else {
+                instance.scheduler.togglePause()
+
+                context.reply(true) {
+                    pretty(
+                        context.locale["$LOCALE_PREFIX.pause.paused"]
+                    )
+                }
+            }
+        }
+    }
+
+    inner class MusicResumeCommandExecutor : PangeaSlashCommandExecutor() {
+        override suspend fun execute(context: PangeaCommandContext) {
+            if (context.guild == null) {
+                context.reply(true) {
+                    pretty(
+                        context.locale["commands.guildOnly"]
+                    )
+                }
+                return
+            }
+
+            val instance = PangeaInstance.pangeaPlayers[context.guild.idLong]
+
+            if (instance == null) {
+                context.reply(true) {
+                    pretty(
+                        context.locale["$LOCALE_PREFIX.instanceNotFound"]
+                    )
+                }
+                return
+            }
+
+            if (!instance.link.player.paused) {
+                context.reply(true) {
+                    pretty(
+                        context.locale["$LOCALE_PREFIX.resume.alreadyResumed"]
+                    )
+                }
+            } else {
+                instance.scheduler.togglePause()
+
+                context.reply(true) {
+                    pretty(
+                        context.locale["$LOCALE_PREFIX.resume.resumed"]
                     )
                 }
             }

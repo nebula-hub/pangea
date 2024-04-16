@@ -9,6 +9,7 @@ import hub.nebula.pangea.listener.data.VoiceState
 import hub.nebula.pangea.utils.pretty
 import kotlinx.coroutines.*
 import mu.KotlinLogging
+import net.dv8tion.jda.api.OnlineStatus
 import net.dv8tion.jda.api.entities.Activity
 import net.dv8tion.jda.api.events.guild.voice.GenericGuildVoiceEvent
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent
@@ -118,6 +119,15 @@ class MajorEventListener(val pangea: PangeaInstance) : ListenerAdapter() {
 
     override fun onReady(event: ReadyEvent) {
         coroutineScope.launch {
+            event.jda.presence.setPresence(
+                OnlineStatus.DO_NOT_DISTURB,
+                Activity.of(
+                    Activity.ActivityType.PLAYING,
+                    "Pangea is loading resources..."
+                )
+            )
+            Thread.sleep(2000)
+
             logger.info { "Logging in with ${event.jda.gatewayIntents.size} intents." }
 
             pangea.lavakord.addNode(
@@ -143,9 +153,12 @@ class MajorEventListener(val pangea: PangeaInstance) : ListenerAdapter() {
         val activities = pangea.config.activities
         val activity = activities.random()
 
-        event.jda.presence.activity = Activity.of(
-            Activity.ActivityType.fromKey(activity.type),
-            activity.name
+        event.jda.presence.setPresence(
+            OnlineStatus.ONLINE,
+            Activity.of(
+                Activity.ActivityType.fromKey(activity.type),
+                activity.name
+            )
         )
     }
 }
