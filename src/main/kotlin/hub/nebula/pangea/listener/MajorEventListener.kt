@@ -126,7 +126,8 @@ class MajorEventListener(val pangea: PangeaInstance) : ListenerAdapter() {
                     "Pangea is loading resources..."
                 )
             )
-            Thread.sleep(2000)
+
+            delay(2000)
 
             logger.info { "Logging in with ${event.jda.gatewayIntents.size} intents." }
 

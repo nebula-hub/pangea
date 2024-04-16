@@ -5,7 +5,6 @@ import dev.arbjerg.lavalink.protocol.v4.Track
 import dev.minn.jda.ktx.coroutines.await
 import dev.minn.jda.ktx.interactions.commands.choice
 import dev.minn.jda.ktx.messages.Embed
-import dev.minn.jda.ktx.messages.invoke
 import dev.schlaubi.lavakord.rest.loadItem
 import hub.nebula.pangea.PangeaInstance
 import hub.nebula.pangea.api.music.PangeaPlayerManager
@@ -141,7 +140,7 @@ class MusicCommand : PangeaSlashCommandDeclarationWrapper {
                 "${source ?: "spsearch"}:$query"
             }
 
-            instance.link.connect(memberVoiceState.channelId.toString())
+            instance.link.connect(context, memberVoiceState.channelId)
 
             when (val item = instance.link.loadItem(search)) {
                 is LoadResult.TrackLoaded -> {
@@ -159,7 +158,11 @@ class MusicCommand : PangeaSlashCommandDeclarationWrapper {
                         instance.scheduler.queue.addAll(mutable)
                     }
 
-                    val message = StringBuilder()
+                    val message = StringBuilder().apply {
+                        appendLine(
+                            "## ${context.locale["$LOCALE_PREFIX.play.playlistAdded", item.data.info.name, query]}"
+                        )
+                    }
 
                     if (item.data.tracks.size > 10) {
                         item.data.tracks.take(10).forEachIndexed { index, it ->
@@ -182,12 +185,9 @@ class MusicCommand : PangeaSlashCommandDeclarationWrapper {
 
                     context.reply {
                         embed {
-                            title = context.locale["$LOCALE_PREFIX.play.playlistAdded", item.data.info.name, query]
                             color = Constants.DEFAULT_COLOR
                             description = message.toString()
                         }
-
-                        content = message.toString()
                     }
                 }
 
@@ -290,8 +290,6 @@ class MusicCommand : PangeaSlashCommandDeclarationWrapper {
             var currentPage = 0
             val pages = instance.scheduler.queue.chunked(10)
 
-            println(instance.scheduler.queue.size)
-
             if (pages.isNotEmpty()) {
                 context.reply {
                     embed {
@@ -340,7 +338,7 @@ class MusicCommand : PangeaSlashCommandDeclarationWrapper {
 
                     actionRow(
                         context.pangea.interactionManager
-                            .createButtonForUser(context.user, ButtonStyle.PRIMARY, "Voltar") {
+                            .createButtonForUser(context.user, ButtonStyle.PRIMARY, context.locale["$LOCALE_PREFIX.queue.previous"]) {
                                 if (currentPage > 0) {
                                     currentPage--
                                 } else {
@@ -380,7 +378,7 @@ class MusicCommand : PangeaSlashCommandDeclarationWrapper {
                                 it.deferEdit().editOriginalEmbeds(embed).await()
                         },
                         context.pangea.interactionManager
-                            .createButtonForUser(context.user, ButtonStyle.PRIMARY, "Próxima") {
+                            .createButtonForUser(context.user, ButtonStyle.PRIMARY, context.locale["$LOCALE_PREFIX.queue.next"]) {
                                 if (currentPage < pages.size - 1) {
                                     currentPage++
                                 } else {
@@ -418,20 +416,54 @@ class MusicCommand : PangeaSlashCommandDeclarationWrapper {
                                 }
 
                                 it.deferEdit().editOriginalEmbeds(embed).await()
-                        }
+                        },
+                        context.pangea.interactionManager
+                            .createButtonForUser(context.user, ButtonStyle.PRIMARY, context.locale["$LOCALE_PREFIX.queue.shuffle"]) {
+                                instance.scheduler.queue.shuffle()
+
+                                it.deferEdit().editOriginalEmbeds(
+                                    Embed {
+                                        title = context.locale["$LOCALE_PREFIX.queue.title", instance.scheduler.queue.size.toString()]
+                                        color = Constants.DEFAULT_COLOR
+                                        thumbnail = context.guild.iconUrl() ?: context.jda.selfUser.effectiveAvatarUrl
+
+                                        footer {
+                                            name = context.locale["$LOCALE_PREFIX.queue.currentPage", (currentPage + 1).toString(), pages.size.toString()]
+                                        }
+
+                                        description = pages[currentPage].joinToString("\n") { track ->
+                                            val info = track.info
+                                            val title = info.title
+                                            val author = info.author
+                                            val source = info.sourceName
+                                            val uri = info.uri
+
+                                            context.locale["$LOCALE_PREFIX.queue.embedDescription", (instance.scheduler.queue.indexOf(track) + 1).toString(), title, uri.toString(), author, source]
+                                        }
+
+                                        field {
+                                            name = context.locale["$LOCALE_PREFIX.queue.playingNow"]
+                                            value = "**[${instance.link.player.playingTrack?.info?.title}](${instance.link.player.playingTrack?.info?.uri})** - ${instance.link.player.playingTrack?.info?.author} (${instance.link.player.playingTrack?.info?.sourceName})"
+                                            inline = true
+                                        }
+                                    }
+                                ).await()
+                            }
                     )
                 }
             } else {
                 if (instance.link.player.playingTrack != null) {
                     context.reply {
                         embed {
-                            title = context.locale["$LOCALE_PREFIX.nowPlaying.musicQueue"]
+                            title = context.locale["$LOCALE_PREFIX.queue.title", instance.scheduler.queue.size.toString()]
                             color = Constants.DEFAULT_COLOR
                             thumbnail = context.guild.iconUrl() ?: context.jda.selfUser.effectiveAvatarUrl
 
+                            description = context.locale["$LOCALE_PREFIX.queue.noSongs"]
+
                             field {
-                                name = context.locale["$LOCALE_PREFIX.nowPlaying.nowPlaying"]
-                                value = instance.link.player.playingTrack?.info?.title ?: context.locale["$LOCALE_PREFIX.instanceNotFound"]
+                                name = context.locale["$LOCALE_PREFIX.queue.playingNow"]
+                                value = "**[${instance.link.player.playingTrack?.info?.title}](${instance.link.player.playingTrack?.info?.uri})** - ${instance.link.player.playingTrack?.info?.author} (${instance.link.player.playingTrack?.info?.sourceName})"
                                 inline = true
                             }
                         }
@@ -522,7 +554,7 @@ class MusicCommand : PangeaSlashCommandDeclarationWrapper {
                                 }
 
                                 it.deferEdit().editOriginalEmbeds(
-                                    createNowPlayingEmbed(it, instance, track)
+                                    createNowPlayingEmbed(it, instance, instance.link.player.playingTrack!!)
                                 ).await()
                             },
                         context.pangea.interactionManager
@@ -545,7 +577,7 @@ class MusicCommand : PangeaSlashCommandDeclarationWrapper {
                                 }
 
                                 it.deferEdit().editOriginalEmbeds(
-                                    createNowPlayingEmbed(it, instance, track)
+                                    createNowPlayingEmbed(it, instance, instance.link.player.playingTrack!!)
                                 ).await()
                             },
                         context.pangea.interactionManager
@@ -568,7 +600,7 @@ class MusicCommand : PangeaSlashCommandDeclarationWrapper {
                                 }
 
                                 it.deferEdit().editOriginalEmbeds(
-                                    createNowPlayingEmbed(it, instance, track)
+                                    createNowPlayingEmbed(it, instance, instance.link.player.playingTrack!!)
                                 ).await()
                             },
                         context.pangea.interactionManager
@@ -591,7 +623,7 @@ class MusicCommand : PangeaSlashCommandDeclarationWrapper {
                                 }
 
                                 it.deferEdit().editOriginalEmbeds(
-                                    createNowPlayingEmbed(it, instance, track)
+                                    createNowPlayingEmbed(it, instance, instance.link.player.playingTrack!!)
                                 ).await()
                             }
                     )
@@ -606,19 +638,17 @@ class MusicCommand : PangeaSlashCommandDeclarationWrapper {
         }
 
         private fun createNowPlayingEmbed(context: PangeaButtonContext, instance: PangeaPlayerManager, track: Track) = Embed {
-            val info = track.info
-
-            url = info.uri
-            title = context.locale["$LOCALE_PREFIX.nowplaying.title", info.title, info.sourceName]
+            url = track.info.uri
+            title = context.locale["$LOCALE_PREFIX.nowplaying.title", track.info.title, track.info.sourceName]
             color = Constants.DEFAULT_COLOR
             thumbnail = track.info.artworkUrl + "?size=2048"
 
             description = StringBuilder().apply {
                 appendLine(
-                    context.locale["$LOCALE_PREFIX.nowplaying.author", info.author]
+                    context.locale["$LOCALE_PREFIX.nowplaying.author", track.info.author]
                 )
                 appendLine(
-                    context.locale["$LOCALE_PREFIX.nowplaying.length", info.length.humanize()]
+                    context.locale["$LOCALE_PREFIX.nowplaying.length", track.info.length.humanize()]
                 )
             }.toString()
 

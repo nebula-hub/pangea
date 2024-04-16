@@ -63,6 +63,8 @@ commands:
         noMatches: "Não encontrei nenhuma música parecida com `{0}`."
         loadFailed: "Não consegui tocar a música, desculpe...\n\nError: `{0}`"
         loadFailedStackstrace: "Não consegui tocar a música, desculpe...\n\nError: ```{0}```"
+        addedToQueue: "Adicionado a fila."
+        playingNow: "Tocando agora"
         options:
           name:
             description: "O nome da música a ser reproduzida (Suporta URLs)."
@@ -94,6 +96,10 @@ commands:
         alreadyOnFirstPage: "Você já está na primeira página."
         alreadyOnLastPage: "Você já está na última página."
         noSongsInQueue: "Não tem músicas na fila."
+        noSongs: "Vamos lá, adicione algumas músicas! Não tenha medo. :)"
+        previous: "Voltar"
+        next: "Avançar"
+        shuffle: "Embaralhar"
       nowplaying:
         description: "Música » Mostra a música que está tocando no momento."
         title: "{0} ({1})"
