@@ -124,7 +124,7 @@ class MusicCommand : PangeaSlashCommandDeclarationWrapper {
                     val message = StringBuilder().apply {
                         appendLine(
                             pretty(
-                                context.locale["$LOCALE_PREFIX.play.playlistAdded", item.data.tracks.size.toString(), item.data.info.name]
+                                context.locale["$LOCALE_PREFIX.play.playlistAdded", item.data.info.name, query]
                             )
                         )
                     }
@@ -300,8 +300,8 @@ class MusicCommand : PangeaSlashCommandDeclarationWrapper {
                         }
 
                         field {
-                            name = context.locale["$LOCALE_PREFIX.queue.nowPlaying"]
-                            value = "[${instance.link.player.playingTrack?.info?.title}](${instance.link.player.playingTrack?.info?.uri}) - ${instance.link.player.playingTrack?.info?.author} (${instance.link.player.playingTrack?.info?.sourceName})"
+                            name = context.locale["$LOCALE_PREFIX.queue.playingNow"]
+                            value = "**[${instance.link.player.playingTrack?.info?.title}](${instance.link.player.playingTrack?.info?.uri})** - ${instance.link.player.playingTrack?.info?.author} (${instance.link.player.playingTrack?.info?.sourceName})"
                             inline = true
                         }
                     }
@@ -340,7 +340,7 @@ class MusicCommand : PangeaSlashCommandDeclarationWrapper {
 
                                     field {
                                         name = context.locale["$LOCALE_PREFIX.queue.playingNow"]
-                                        value = instance.link.player.playingTrack?.info?.title ?: context.locale["$LOCALE_PREFIX.queue.noSongPlaying"]
+                                        value = "**[${instance.link.player.playingTrack?.info?.title}](${instance.link.player.playingTrack?.info?.uri})** - ${instance.link.player.playingTrack?.info?.author} (${instance.link.player.playingTrack?.info?.sourceName})"
                                         inline = true
                                     }
                                 }
@@ -380,7 +380,7 @@ class MusicCommand : PangeaSlashCommandDeclarationWrapper {
 
                                     field {
                                         name = context.locale["$LOCALE_PREFIX.queue.playingNow"]
-                                        value = instance.link.player.playingTrack?.info?.title ?: context.locale["$LOCALE_PREFIX.queue.noSongPlaying"]
+                                        value = "**[${instance.link.player.playingTrack?.info?.title}](${instance.link.player.playingTrack?.info?.uri})** - ${instance.link.player.playingTrack?.info?.author} (${instance.link.player.playingTrack?.info?.sourceName})"
                                         inline = true
                                     }
                                 }

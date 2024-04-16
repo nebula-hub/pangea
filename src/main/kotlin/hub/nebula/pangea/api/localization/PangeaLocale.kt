@@ -29,7 +29,7 @@ class PangeaLocale(val locale: String) {
         var result = current.asText()
 
         placeholder.forEachIndexed { index, s ->
-            result = current.asText().replace("{${index}}", s)
+            result = result.replace("{${index}}", s)
         }
 
         return result

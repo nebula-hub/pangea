@@ -39,7 +39,7 @@ commands:
         queuePosition: "· **Queue Position**: {0}"
         playlistAdded: "Playlist **[{0}]({1})** added to the queue."
         playlistAddedDescription: "{0} · **[{1}]({2})** - {3} {4}"
-        playlistMoreSongs: "And more `${0}` songs."
+        playlistMoreSongs: "And more `{0}` songs."
         noMatches: "I couldn't find any songs with the name `{0}`."
         loadFailed: "I couldn't load the song, sorry...\n\nError: `{0}`"
         loadFailedStackstrace: "I couldn't load the song, sorry...\n\nError: ```{0}```"
