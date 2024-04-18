@@ -38,7 +38,7 @@ class MusicPlayCommandExecutor : PangeaSlashCommandExecutor() {
 
         val query = context.getOption("name")!!.asString
         val source = context.getOption("source")?.asString
-        val instance = PangeaInstance.pangeaPlayers.getOrPut(context.guild.idLong) { PangeaPlayerManager(context.pangea.lavakord.getLink(context.guild.id)) }
+        val instance = PangeaInstance.pangeaPlayers.getOrPut(context.guild.idLong) { PangeaPlayerManager(context.pangea.lavakord.getLink(context.guild.id), context) }
         val memberVoiceState = context.pangea.voiceStateManager[context.member!!.idLong]
 
         if (memberVoiceState == null) {
@@ -58,11 +58,11 @@ class MusicPlayCommandExecutor : PangeaSlashCommandExecutor() {
             "${source ?: "spsearch"}:$query"
         }
 
-        instance.link.connect(context, memberVoiceState.channelId)
-
         when (val item = instance.link.loadItem(search)) {
             is LoadResult.TrackLoaded -> {
                 val isEmpty = instance.scheduler.queue.isEmpty()
+
+                instance.link.connect(context, memberVoiceState.channelId)
 
                 sendPlayingTrackEmbed(context, item.data, isEmpty)
             }
@@ -71,6 +71,8 @@ class MusicPlayCommandExecutor : PangeaSlashCommandExecutor() {
                 val mutable = item.data.tracks.toMutableList()
 
                 val removed = mutable.removeAt(0)
+
+                instance.link.connect(context, memberVoiceState.channelId)
 
                 instance.scheduler.queue(removed)
 
@@ -115,6 +117,8 @@ class MusicPlayCommandExecutor : PangeaSlashCommandExecutor() {
                 val track = item.data.tracks.firstOrNull()
 
                 if (track != null) {
+                    instance.link.connect(context, memberVoiceState.channelId)
+
                     instance.scheduler.queue(track)
 
                     val isEmpty = instance.scheduler.queue.isEmpty()

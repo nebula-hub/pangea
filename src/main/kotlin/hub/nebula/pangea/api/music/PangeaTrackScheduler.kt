@@ -1,17 +1,20 @@
 package hub.nebula.pangea.api.music
 
 import dev.arbjerg.lavalink.protocol.v4.Track
+import dev.minn.jda.ktx.coroutines.await
 import dev.schlaubi.lavakord.audio.*
 import dev.schlaubi.lavakord.audio.player.*
 import hub.nebula.pangea.PangeaInstance
+import hub.nebula.pangea.command.PangeaInteractionContext
 import hub.nebula.pangea.database.dao.Song
 import hub.nebula.pangea.database.table.Songs
+import hub.nebula.pangea.utils.pretty
 import mu.KotlinLogging
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import java.util.LinkedList
 import kotlin.reflect.jvm.jvmName
 
-class PangeaTrackScheduler(private val link: Link) {
+class PangeaTrackScheduler(private val link: Link, private val context: PangeaInteractionContext) {
     val queue = LinkedList<Track>()
     val logger = KotlinLogging.logger(this::class.jvmName)
 
@@ -94,9 +97,7 @@ class PangeaTrackScheduler(private val link: Link) {
 
     init {
         link.player.on<TrackEvent> {
-            val event = this
-
-            when (event) {
+            when (val event = this) {
                 is TrackStartEvent -> {
                     logger.info { "Adding song to the database!" }
                     newSuspendedTransaction {
@@ -119,16 +120,31 @@ class PangeaTrackScheduler(private val link: Link) {
                             song.playCount++
                         }
                     }
+                    val voiceData = context.pangea.voiceStateManager[context.member!!.idLong]
+                    val voiceChannel = context.guild?.getVoiceChannelById(voiceData!!.channelId)
+
+                    voiceChannel?.modifyStatus("${track.info.author} - ${track.info.title}")?.await()
                 }
 
                 is TrackEndEvent -> {
                     if (queue.isNotEmpty()) {
                         nextTrack()
+                    } else {
+                        val voiceData = context.pangea.voiceStateManager[context.member!!.idLong]
+                        val voiceChannel = context.guild?.getVoiceChannelById(voiceData!!.channelId)
+
+                        voiceChannel?.modifyStatus("")?.await()
                     }
                 }
 
                 is TrackExceptionEvent -> {
                     logger.info { "An error occurred when playing the track: ${event.exception}" }
+
+                    context.reply {
+                        pretty(
+                            "${event.exception} - Try again or select another source to play the music."
+                        )
+                    }
                 }
             }
         }

@@ -1,14 +1,18 @@
 commands:
-  onlyUserCanInteractWithThisComponent: "This button isn't even for you! Get outta here"
+  onlyUserCanInteractWithThisComponent: "This interaction is not for you! Only {0} can use it."
   guildOnly: "This command can be used only in servers."
   noPermission: "You need the `{0}` permission to use this command."
   invalidUser: "The user `{0}` doesn't exist."
   hierarchyError: "My role is below the user's role that you want to punish."
   commandExecutedBy: "Command executed by {0}"
   voiceChannelOnly: "You need to enter a voice channel first to use this command."
+  selectMenus:
+    expired: "It looks like the interaction has been expired... I guess you cannot use this select menu anymore."
   modules:
     localEconomy:
       disabled: "Local Economy is disabled in this server."
+    dj:
+      disabled: "DJ is disabled in this server."
   common:
     enabled: "Yes"
     disabled: "No"
@@ -85,13 +89,11 @@ commands:
         next: "Next"
       daily:
         options:
-          user:
-            description: "The user to claim the daily reward."
           gateway:
             description: "The gateway to claim the daily reward."
         description: "Economy » Get your daily reward."
-        alreadyClaimed: "You have already claimed your daily reward. Come back in <t:{0}:F>."
-        claimed: "You claimed your daily reward. You received {0} {1}."
+        alreadyClaimed: "[{0}] You have already claimed your daily reward. Come back in <t:{1}:F>."
+        claimed: "[{0}] You claimed your daily reward. You received {1} {2}."
       bet:
         options:
           user:
@@ -141,6 +143,19 @@ commands:
         options:
           name:
             description: "The name of the music to be played (Supports URL)."
+          source:
+            description: "The source of the music to be played."
+      search:
+        noResults: "I couldn't find any songs with the name `{0}`."
+        title: "Search Results"
+        description: "Music » Search for a song."
+        iFound: "I found `{0}` songs in this search, select the desired one below!"
+        addedToQueue: "Added **[{0}]({1})** to the queue."
+        playingNow: "Playing now **[{0}]({1})**."
+        selectedSongSuccessfully: "Song selected successfully."
+        options:
+          name:
+            description: "The song you want to search."
           source:
             description: "The source of the music to be played."
       skip:

@@ -6,6 +6,7 @@ import hub.nebula.pangea.command.PangeaInteractionContext
 import hub.nebula.pangea.command.component.PangeaComponentId
 import hub.nebula.pangea.database.dao.Guild
 import hub.nebula.pangea.listener.data.VoiceState
+import hub.nebula.pangea.utils.edit
 import hub.nebula.pangea.utils.pretty
 import kotlinx.coroutines.*
 import mu.KotlinLogging
@@ -18,6 +19,7 @@ import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent
 import net.dv8tion.jda.api.events.interaction.component.GenericComponentInteractionCreateEvent
+import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent
 import net.dv8tion.jda.api.events.session.ReadyEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
@@ -136,6 +138,45 @@ class MajorEventListener(val pangea: PangeaInstance) : ListenerAdapter() {
 
                     callbackId.invoke(context)
                 }
+            }
+        }
+    }
+
+    override fun onStringSelectInteraction(event: StringSelectInteractionEvent) {
+        coroutineScope.launch {
+            val componentId = try {
+                PangeaComponentId(event.componentId)
+            } catch (e: IllegalArgumentException) {
+                logger.info { "I don't recongnize this ID, probably it's expired." }
+                return@launch
+            }
+
+            try {
+                val callback = pangea.interactionManager.stringSelectMenuCallbacks[componentId.uniqueId]
+                val context = PangeaInteractionContext(
+                    event,
+                    pangea
+                )
+
+                if (callback == null) {
+                    event.deferEdit().await().edit {
+                        actionRow(
+                            event.component.asDisabled()
+                        )
+                    }
+
+                    context.reply(true) {
+                        pretty(
+                            context.locale["commands.selectMenus.expired"]
+                        )
+                    }
+
+                    return@launch
+                }
+
+                callback.invoke(context, event.values)
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
     }

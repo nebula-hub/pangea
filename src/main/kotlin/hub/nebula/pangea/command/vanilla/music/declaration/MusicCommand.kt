@@ -33,13 +33,40 @@ class MusicCommand : PangeaSlashCommandDeclarationWrapper {
                     "$LOCALE_PREFIX.play.source.description",
                     false
                 ).choice("YouTube", "ytsearch")
-                    .choice("Spotify", "spsearch")
+                    .choice("Spotify (Default)", "spsearch")
                     .choice("SoundCloud", "scsearch"),
                 isSubcommand = true,
                 baseName = this@command.name
             )
 
             executor = MusicPlayCommandExecutor()
+        }
+
+        subCommand(
+            "search",
+            "$LOCALE_PREFIX.search.description",
+            this@command.name
+        ) {
+            addOption(
+                OptionData(
+                    OptionType.STRING,
+                    "name",
+                    "$LOCALE_PREFIX.play.name.description",
+                    true
+                ),
+                OptionData(
+                    OptionType.STRING,
+                    "source",
+                    "$LOCALE_PREFIX.play.source.description",
+                    false
+                ).choice("YouTube", "ytsearch")
+                    .choice("Spotify (Default)", "spsearch")
+                    .choice("SoundCloud", "scsearch"),
+                isSubcommand = true,
+                baseName = this@command.name
+            )
+
+            executor = MusicSearchCommandExecutor()
         }
 
         subCommand(

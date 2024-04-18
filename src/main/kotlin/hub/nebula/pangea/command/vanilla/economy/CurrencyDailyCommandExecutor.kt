@@ -34,14 +34,14 @@ class CurrencyDailyCommandExecutor : PangeaSlashCommandExecutor() {
 
                     context.reply {
                         pretty(
-                            context.locale["$LOCALE_PREFIX.daily.claimed", dailyValue.toString(), "Stardusts"]
+                            context.locale["$LOCALE_PREFIX.daily.claimed", "Global", dailyValue.toString(), "Stardusts"]
                         )
                     }
                 } else {
                     if (System.currentTimeMillis() - user.lastDaily!! < 86400000) {
                         context.reply {
                             pretty(
-                                context.locale["$LOCALE_PREFIX.daily.alreadyClaimed", (user.lastDaily!! / 1000).toString()]
+                                context.locale["$LOCALE_PREFIX.daily.alreadyClaimed", "Global", (user.lastDaily!! / 1000).toString()]
                             )
                         }
                         return
@@ -94,7 +94,7 @@ class CurrencyDailyCommandExecutor : PangeaSlashCommandExecutor() {
 
                         context.reply {
                             pretty(
-                                context.locale["$LOCALE_PREFIX.daily.claimed", dailyValue.toString(), guild.currencyNamePlural]
+                                context.locale["$LOCALE_PREFIX.daily.claimed", "Local", dailyValue.toString(), guild.currencyNamePlural]
                             )
                         }
 
@@ -103,7 +103,7 @@ class CurrencyDailyCommandExecutor : PangeaSlashCommandExecutor() {
                         if (System.currentTimeMillis() - member.lastDaily!! < 86400000) {
                             context.reply {
                                 pretty(
-                                    context.locale["$LOCALE_PREFIX.daily.alreadyClaimed", (member.lastDaily!! / 1000).toString()]
+                                    context.locale["$LOCALE_PREFIX.daily.alreadyClaimed", "Local", (member.lastDaily!! / 1000).toString()]
                                 )
                             }
                             return@newSuspendedTransaction

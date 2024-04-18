@@ -1,14 +1,18 @@
 commands:
-  onlyUserCanInteractWithThisComponent: "Este botão não é nem para você! Saia daqui."
+  onlyUserCanInteractWithThisComponent: "Essa interação não é para você! Somente {0} consegue usar!"
   guildOnly: "Esse comando pode ser usado somente em servidores."
   noPermission: "Você precisa da permissão `{0}` para usar esse comando."
   invalidUser: "O usuário `{0}` não existe."
   hierarchyError: "Minha função está abaixo da função do usuário que você deseja punir."
   commandExecutedBy: "Comando executado por {0}"
   voiceChannelOnly: "Você precisa entrar em um canal de voz primeiro para usar esse comando."
+  selectMenus:
+    expired: "Parece que a interação expirou... Acho que você não pode mais usar este menu de seleção."
   modules:
     localEconomy:
       disabled: "A economia local está desativada neste servidor."
+    dj:
+      disabled: "DJ Pangea está desativado neste servidor."
   common:
     enabled: "Sim"
     disabled: "Não"
@@ -64,26 +68,32 @@ commands:
         options:
           user:
             description: "O usuário que você deseja verificar o saldo."
+          gateway:
+            description: "O gateway para verificar o saldo."
         description: "Economia » Verifique seu saldo."
         balanceText: "Você tem {0} {1}"
         otherBalanceText: "{0} tem {1} {2}"
         rankingText: "Você está em `#{0}` no ranking de {1}"
+        localEconomyDisabled: "Local Economy is disabled in this server."
       rank:
         options:
-          gateway: "O gateway para verificar o ranking."
+          gateway:
+            description: "O gateway para verificar o ranking."
         description: "Economia » Verifique o ranking de moedas."
         embedTitle: "Ranking de {0} - {1}"
         embedFooter: "Página {0} de {1}"
         alreadyAtFirstPage: "Você já está na primeira página."
         alreadyAtLastPage: "Você já está na última página"
+        localEconomyDisabled: "Local Economy is disabled in this server."
         previous: "Anterior"
         next: "Próximo"
       daily:
         options:
-          gateway: "O gateway para reivindicar a recompensa diária."
+          gateway:
+            description: "O gateway para reivindicar a recompensa diária."
         description: "Economia » Receba sua recompensa diária."
-        alreadyClaimed: "Você já pegou a sua recompensa diária. Volte em <t:{0}:F>."
-        claimed: "Você pegou {0} {1} da sua recompensa diária."
+        alreadyClaimed: "[{0}] Você já pegou a sua recompensa diária. Volte em <t:{1}:F>."
+        claimed: "[{0}] Você pegou {1} {2} da sua recompensa diária."
       bet:
         options:
           target:
@@ -106,6 +116,8 @@ commands:
         options:
           amount:
             description: "A quantidade de moedas que você deseja apostar."
+          gateway:
+            description: "O gateway para apostar."
         description: "Economia » Jogue nas máquinas caça-níqueis."
         notEnoughCurrency: "Você não tem {0} o suficiente para jogar."
         youWon: "Parabéns, você ganhou {0} {1}!"
@@ -133,6 +145,19 @@ commands:
             description: "O nome da música a ser reproduzida (Suporta URLs)."
           source:
             description: "A origem da música a ser reproduzida."
+      search:
+        noResults: "Não encontrei nenhuma música parecida com `{0}`."
+        title: "Resultados da Pesquisa"
+        description: "Música » Pesquise por músicas no YouTube, SoundCloud ou Spotify."
+        iFound: "Eu encontrei `{0}` músicas nessa pesquisa, selecione a desejada abaixo!"
+        addedToQueue: "Adicionando **[{0}]({1})** à fila!"
+        playingNow: "Tocando agora **[{0}]({1})**."
+        selectedSongSuccessfully: "Música selecionada com sucesso."
+        options:
+          name:
+            description: "A música que você deseja pesquisar."
+          source:
+            description: "A origem da música que você deseja pesquisar."
       skip:
         description: "Música » Pula a música que está tocando no momento."
         noSongsToSkip: "Não tem nenhuma música pra ser pulada."
