@@ -1,0 +1,190 @@
+commands:
+  onlyUserCanInteractWithThisComponent: "This button isn't even for you! Get outta here"
+  guildOnly: "This command can be used only in servers."
+  noPermission: "You need the `{0}` permission to use this command."
+  invalidUser: "The user `{0}` doesn't exist."
+  hierarchyError: "My role is below the user's role that you want to punish."
+  commandExecutedBy: "Command executed by {0}"
+  voiceChannelOnly: "You need to enter a voice channel first to use this command."
+  modules:
+    localEconomy:
+      disabled: "Local Economy is disabled in this server."
+  common:
+    enabled: "Yes"
+    disabled: "No"
+  buttons:
+    expired: "It looks like the interaction has been expired... I guess you cannot use this button anymore."
+    unban: "Unban"
+    previous: "Previous"
+    next: "Next"
+    accept: "Accept"
+    decline: "Decline"
+    notEnoughCurrency: "Insufficient {0}"
+    bettedSuccessfully: "Bet successfully closed"
+    betDeclined: "Bet declined"
+  command:
+    pangea:
+      description: "Pangea related commands."
+      ping:
+        description: "Pangea » Check the bot's latency."
+      info:
+        description: "Pangea » Show information about the bot."
+        embedTitle: "My Informations"
+        embedDescription: "Technical information for those who want to know... Maybe not that useful."
+        embedServers: "Servers"
+        embedRAMUsage: "RAM Usage"
+        sourceCode: "Source Code"
+        inviteMe: "Invite me to your server"
+    admin:
+      description: "Administration related commands."
+      successfullyPunished: "Member was successfully punished."
+      checkban:
+        notBanned: "This user is not banned."
+        userBanned: "Banned"
+        name: "User Name"
+        reason: "Reason"
+        noReason: "No reason specified."
+        successfullyUnban: "Sucessfully unbanned member."
+        description: "Administration » Check if a user is banned."
+        options:
+          member_id:
+            description: "The ID of the evildoer to be checked."
+      ban:
+        banReason: "Member banned by {0}: {1}"
+        noBanReason: "Member banned by {0}: None of us know why."
+        description: "Administration » Ban a member."
+        options:
+          member:
+            description: "The evildoer to be banned."
+          reason:
+            description: "The reason for the punishment. (Optional)"
+    currency:
+      description: "Economy related commands."
+      balance:
+        options:
+          user:
+            description: "The user to check the balance."
+          gateway:
+            description: "The gateway to check the balance."
+        description: "Economy » Check your balance."
+        balanceText: "You have {0} {1}"
+        otherBalanceText: "{0} has {1} {2}"
+        rankingText: "You are in `#{0}` in {1} ranking"
+        localEconomyDisabled: "Local Economy is disabled in this server."
+      rank:
+        options:
+          gateway:
+            description: "The gateway to claim the daily reward."
+        description: "Economy » Check the server's ranking."
+        embedTitle: "Ranking of {0} - {1}"
+        embedFooter: "Page {0} of {1}"
+        alreadyAtFirstPage: "You are already in the first page."
+        alreadyAtLastPage: "You are already in the last page."
+        localEconomyDisabled: "Local Economy is disabled in this server."
+        previous: "Previous"
+        next: "Next"
+      daily:
+        options:
+          user:
+            description: "The user to claim the daily reward."
+          gateway:
+            description: "The gateway to claim the daily reward."
+        description: "Economy » Get your daily reward."
+        alreadyClaimed: "You have already claimed your daily reward. Come back in <t:{0}:F>."
+        claimed: "You claimed your daily reward. You received {0} {1}."
+      bet:
+        options:
+          user:
+            description: "The user to bet with."
+          amount:
+            description: "The amount to bet."
+          gateway:
+            description: "The gateway to bet."
+        description: "Economy » Bet coins with another user."
+        youDontHaveSufficientCurrency: "You don't have enough {0} to bet."
+        targetDontHaveSufficientCurrency: "{0} doesn't have enough {1} to bet with you."
+        userWantToBet: "{0} wants to bet {1} {2} with you. Do you accept?"
+        howItWorks: "**But, how it works?** Basically I will roll two dies, one for you and one for {0}. The highest number wins. If you win, you will receive {1} {2}. If you lose, you will lose {1} {2}."
+        authorDice: "Your die: `{0}`"
+        targetDice: "{0}'s die: `{1}`"
+        successfullyWon: "Congratulations {0}! You have won {1} {2} from {3}"
+        tie: "Tie! Nobody won anything."
+        declined: "{0} declined the bet."
+      slots:
+        options:
+          amount:
+            description: "The amount to bet."
+          gateway:
+            description: "The gateway to bet."
+        description: "Economy » Bet currency in a slot machine."
+        notEnoughCurrency: "You don't have enough {0} to play."
+        youWon: "Congratulations, you won {0} {1}!"
+        youLose: "Too bad, you lost {0} {1}."
+        result: "Result"
+    music:
+      description: "Music related commands."
+      thereIsntAnySongPlaying: "There is no song playing now."
+      instanceNotFound: "There is no song playing now."
+      play:
+        description: "Music » Play any music you want from YouTube, SoundCloud or Spotify (default)."
+        author: "· **Author**: {0}"
+        length: "· **Length**: {0}"
+        queuePosition: "· **Queue Position**: {0}"
+        playlistAdded: "Playlist [{0}]({1}) added to the queue."
+        playlistAddedDescription: "{0} · **[{1}]({2})** - {3} ({4})"
+        playlistMoreSongs: "And more `{0}` songs."
+        noMatches: "I couldn't find any songs with the name `{0}`."
+        loadFailed: "I couldn't load the song, sorry...\n\nError: `{0}`"
+        loadFailedStackstrace: "I couldn't load the song, sorry...\n\nError: ```{0}```"
+        addedToQueue: "Added to queue"
+        playingNow: "Playing now"
+        options:
+          name:
+            description: "The name of the music to be played (Supports URL)."
+          source:
+            description: "The source of the music to be played."
+      skip:
+        description: "Music » Skip the currently playing music."
+        noSongsToSkip: "There are no songs in the queue."
+        skipped: "You skipped the song."
+      stop:
+        description: "Music » Stop the currently playing music."
+        stopped: "The song has been stopped and I'm leaving."
+      pause:
+        description: "Music » Pause the currently playing music."
+        paused: "The song has been paused."
+        alreadyPaused: "The song is already paused."
+      resume:
+        description: "Music » Resume the currently playing music."
+        resumed: "The song has been resumed."
+        alreadyResumed: "The song is already playing."
+      queue:
+        description: "Music » Show the songs in the queue."
+        title: "Playlist - {0} songs"
+        onlyOneSongDescription: "{0} • **[{1}]({2})** - {3} ({4})\n\n**What about you add more songs?**"
+        embedDescription: "{0} • **[{1}]({2})** - {3} ({4})"
+        currentPage: "You are in the page {0} of {1}"
+        playingNow: "Playing now"
+        noSongPlaying: "There is no song playing now."
+        alreadyOnFirstPage: "You are already in the first page."
+        alreadyOnLastPage: "You are already in the last page."
+        noSongsInQueue: "There are no songs in the queue."
+        noSongs: "Come on, add some songs to the queue! Do not be afraid. :)"
+        previous: "Back"
+        next: "Next"
+        shuffle: "Shuffle"
+      nowplaying:
+        title: "{0} ({1})"
+        author: "· **Author**: {0}"
+        length: "· **Length**: {0}"
+        embedFieldAuthor: "Author"
+        embedFieldDuration: "Duration"
+        embedFieldSource: "Origin"
+        terminated: "Fine, i'm out."
+        volumeChanged: "I changed the volume for you"
+        skipped: "You skipped the song"
+        volumeMax: "The volume is already at maximum"
+        volumeMin: "The volume is already at minimum"
+        nowPlaying: "Now playing"
+        effects: "Effects"
+        description: "Music » Show the currently playing music."

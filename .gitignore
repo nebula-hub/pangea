@@ -14,4 +14,10 @@ out/
 !**/src/test/**/out/
 
 # Pangea Config Files
+# for local instances :)
 pangea.conf
+
+# Pangea Localization
+# for local instances :)
+./localization
+./localization/

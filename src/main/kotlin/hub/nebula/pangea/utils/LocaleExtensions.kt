@@ -1,12 +1,7 @@
 package hub.nebula.pangea.utils
 
-import hub.nebula.pangea.command.PangeaCommandContext
-import hub.nebula.pangea.command.component.PangeaButtonContext
+import hub.nebula.pangea.command.PangeaInteractionContext
 
-fun Boolean.toLocalized(context: PangeaCommandContext): String {
-    return if (this) context.locale["commands.common.enabled"] else context.locale["commands.common.disabled"]
-}
-
-fun Boolean.toLocalized(context: PangeaButtonContext): String {
+fun Boolean.toLocalized(context: PangeaInteractionContext): String {
     return if (this) context.locale["commands.common.enabled"] else context.locale["commands.common.disabled"]
 }

@@ -1,4 +1,4 @@
-package hub.nebula.pangea.command
+package hub.nebula.pangea.command.structure
 
 class PangeaSlashCommandGroupBuilder(
     val name: String,

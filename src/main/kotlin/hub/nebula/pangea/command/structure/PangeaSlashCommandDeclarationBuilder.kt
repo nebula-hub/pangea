@@ -1,4 +1,4 @@
-package hub.nebula.pangea.command
+package hub.nebula.pangea.command.structure
 
 import dev.minn.jda.ktx.interactions.commands.Command
 import dev.minn.jda.ktx.interactions.commands.Subcommand
@@ -9,7 +9,6 @@ import net.dv8tion.jda.api.interactions.DiscordLocale
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions
 import net.dv8tion.jda.api.interactions.commands.build.OptionData
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
-import net.dv8tion.jda.api.interactions.commands.localization.ResourceBundleLocalizationFunction
 
 class PangeaSlashCommandDeclarationBuilder(
     val name: String,

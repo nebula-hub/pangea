@@ -2,9 +2,11 @@ package hub.nebula.pangea.command
 
 import dev.minn.jda.ktx.coroutines.await
 import hub.nebula.pangea.PangeaInstance
-import hub.nebula.pangea.command.vanilla.admin.AdminCommand
-import hub.nebula.pangea.command.vanilla.misc.PangeaCommand
-import hub.nebula.pangea.command.vanilla.music.MusicCommand
+import hub.nebula.pangea.command.structure.PangeaSlashCommandDeclarationWrapper
+import hub.nebula.pangea.command.vanilla.admin.declaration.AdminCommand
+import hub.nebula.pangea.command.vanilla.economy.declaration.CurrencyCommand
+import hub.nebula.pangea.command.vanilla.misc.declaration.PangeaCommand
+import hub.nebula.pangea.command.vanilla.music.declaration.MusicCommand
 import mu.KotlinLogging
 import net.dv8tion.jda.api.interactions.commands.Command
 import kotlin.reflect.jvm.jvmName
@@ -40,6 +42,9 @@ class PangeaCommandManager(private val pangea: PangeaInstance) {
 
         // ===[ Admin ]===
         register(AdminCommand())
+
+        // ===[ Economy ]===
+        register(CurrencyCommand())
 
         // ===[ Music ]===
         register(MusicCommand())

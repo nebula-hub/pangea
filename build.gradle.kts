@@ -39,6 +39,9 @@ dependencies {
     // ===[ Database Stuff ]===
     implementation("com.zaxxer:HikariCP:${Versions.HIKARI}")
     implementation("org.jetbrains.exposed:exposed-core:${Versions.EXPOSED}")
+    implementation("org.jetbrains.exposed:exposed-dao:${Versions.EXPOSED}")
+    implementation("org.jetbrains.exposed:exposed-jdbc:${Versions.EXPOSED}")
+    implementation("org.postgresql:postgresql:${Versions.PSQL}")
 
     // ===[ Serialization Stuff ]===
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:${Versions.KOTLINX_SERIALIZATION}")

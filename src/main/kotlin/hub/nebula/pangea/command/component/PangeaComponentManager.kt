@@ -1,14 +1,15 @@
 package hub.nebula.pangea.command.component
 
 import com.github.benmanes.caffeine.cache.Caffeine
+import hub.nebula.pangea.command.PangeaInteractionContext
 import hub.nebula.pangea.utils.pretty
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.entities.emoji.Emoji
+import net.dv8tion.jda.api.interactions.components.ActionRow
+import net.dv8tion.jda.api.interactions.components.LayoutComponent
 import net.dv8tion.jda.api.interactions.components.buttons.Button
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle
+import net.dv8tion.jda.api.interactions.modals.Modal
 import java.util.UUID
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.toJavaDuration
@@ -18,10 +19,10 @@ class PangeaComponentManager {
         val delay = 15.minutes
     }
     // Loritta's version is more beaultiful
-    val buttonCallbacks = Caffeine
+    val componentCallbacks = Caffeine
         .newBuilder()
         .expireAfterWrite(delay.toJavaDuration())
-        .build<UUID, suspend (PangeaButtonContext) -> Unit>()
+        .build<UUID, suspend (PangeaInteractionContext) -> Unit>()
         .asMap()
 
     fun createButtonForUser(
@@ -29,7 +30,7 @@ class PangeaComponentManager {
         style: ButtonStyle,
         label: String = "",
         builder: (ButtonBuilder).() -> (Unit) = {},
-        callback: suspend (PangeaButtonContext) -> (Unit)
+        callback: suspend (PangeaInteractionContext) -> (Unit)
     ) = createButton(targetUser.idLong, style, label, builder, callback)
 
     fun createButton(
@@ -37,7 +38,7 @@ class PangeaComponentManager {
         style: ButtonStyle,
         label: String = "",
         builder: (ButtonBuilder).() -> (Unit) = {},
-        callback: suspend (PangeaButtonContext) -> (Unit)
+        callback: suspend (PangeaInteractionContext) -> (Unit)
     ) = button(
         style,
         label,
@@ -60,10 +61,10 @@ class PangeaComponentManager {
         style: ButtonStyle,
         label: String = "",
         builder: (ButtonBuilder).() -> (Unit) = {},
-        callback: suspend (PangeaButtonContext) -> (Unit)
+        callback: suspend (PangeaInteractionContext) -> (Unit)
     ): Button {
         val buttonId = UUID.randomUUID()
-        buttonCallbacks[buttonId] = callback
+        componentCallbacks[buttonId] = callback
 
         return Button.of(
             style,
@@ -72,6 +73,51 @@ class PangeaComponentManager {
         ).let {
             ButtonBuilder(it).apply(builder).button
         }
+    }
+
+    fun createModal(
+        title: String,
+        builder: (ModalBuilder).() -> (Unit) = {},
+        callback: suspend (PangeaInteractionContext) -> (Unit)
+    ) = modal(
+        title,
+        builder,
+    ) {
+        callback.invoke(it)
+    }
+
+    fun modal(
+        title: String,
+        builder: (ModalBuilder).() -> (Unit) = {},
+        callback: suspend (PangeaInteractionContext) -> (Unit)
+    ): Modal {
+        val modalId = UUID.randomUUID()
+        componentCallbacks[modalId] = callback
+
+        return Modal.create(
+            PangeaComponentId(modalId).toString(),
+            title
+        ).let {
+            ModalBuilder(it).apply(builder).modal.build()
+        }
+    }
+
+    class ModalBuilder(internal var modal: Modal.Builder) {
+        @get:JvmSynthetic
+        var title: String
+            @Deprecated("", level = DeprecationLevel.ERROR)
+            get() = throw UnsupportedOperationException()
+            set(value) {
+                modal = modal.setTitle(value)
+            }
+
+        @get:JvmSynthetic
+        var components: List<LayoutComponent>
+            @Deprecated("", level = DeprecationLevel.ERROR)
+            get() = throw UnsupportedOperationException()
+            set(value) {
+                modal.addComponents(value)
+            }
     }
 
     class ButtonBuilder(internal var button: Button) {

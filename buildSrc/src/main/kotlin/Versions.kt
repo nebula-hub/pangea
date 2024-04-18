@@ -20,6 +20,7 @@ object Versions {
     // ===[ Database Stuff ]===
     const val HIKARI = "5.1.0"
     const val EXPOSED = "0.49.0"
+    const val PSQL = "42.7.0"
 
     // ===[ Serialization Stuff ]===
     const val KOTLINX_SERIALIZATION = "1.6.3"

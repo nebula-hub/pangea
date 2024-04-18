@@ -2,13 +2,24 @@ package hub.nebula.pangea.utils
 
 import dev.minn.jda.ktx.coroutines.await
 import dev.minn.jda.ktx.messages.InlineMessage
+import dev.minn.jda.ktx.messages.MessageEditBuilder
 import dev.schlaubi.lavakord.audio.Link
-import hub.nebula.pangea.command.PangeaCommandContext
+import hub.nebula.pangea.command.PangeaInteractionContext
 import net.dv8tion.jda.api.entities.Guild
+import net.dv8tion.jda.api.entities.Message
+import net.dv8tion.jda.api.interactions.InteractionHook
 
 fun InlineMessage<*>.pretty(content: String, prefix: String = Emojis.STAR) {
     if (content.isNotBlank()) {
         this.content = "$prefix **•** $content"
+    }
+}
+
+fun prettyStr(content: String, prefix: String = Emojis.STAR): String {
+    return if (content.isNotBlank()) {
+        "$prefix **•** $content"
+    } else {
+        ""
     }
 }
 
@@ -19,8 +30,14 @@ fun Guild.iconUrl(): String? {
     return "https://cdn.discordapp.com/icons/${id}/$iconId.$extension?size=2048"
 }
 
-suspend fun Link.connect(context: PangeaCommandContext, channelId: Long) {
-    this.connect(channelId.toString()).also {
-        context.guild!!.audioManager.isSelfDeafened = true
+suspend fun Link.connect(context: PangeaInteractionContext, channelId: Long) {
+    this.connect(channelId.toString())
+}
+
+suspend fun InteractionHook.edit(block: InlineMessage<*>.() -> Unit): Message? {
+    val msg = MessageEditBuilder {
+        apply(block)
     }
+
+    return this.editOriginal(msg.build()).await()
 }
