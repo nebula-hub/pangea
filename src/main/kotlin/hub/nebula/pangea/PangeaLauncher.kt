@@ -56,13 +56,9 @@ object PangeaLauncher {
                     return
                 }
 
-                val internalPtBrFile = File("./resources/localization/pt-br/general.yml")
-                val internalEnUsFile = File("./resources/localization/en-us/general.yml")
-
-                createNewFileToPath("./localization/pt-br", "general.yml", internalPtBrFile.readBytes())
-                createNewFileToPath("./localization/en-us", "general.yml", internalEnUsFile.readBytes())
+                createNewFileToPath("./localization/pt-br", "general.yml", getResourceAsByteArray("/localization/pt-br/general.yml"))
+                createNewFileToPath("./localization/en-us", "general.yml", getResourceAsByteArray("/localization/en-us/general.yml"))
             }
-            exitProcess(0)
         } else {
             logger.info { "Localization directory not found, creating now the language directories" }
             localeDir.mkdir()
@@ -71,8 +67,6 @@ object PangeaLauncher {
 
             createNewFileToPath("./localization/pt-br", "general.yml", getResourceAsByteArray("/localization/pt-br/general.yml"))
             createNewFileToPath("./localization/en-us", "general.yml", getResourceAsByteArray("/localization/en-us/general.yml"))
-
-            exitProcess(0)
         }
     }
 

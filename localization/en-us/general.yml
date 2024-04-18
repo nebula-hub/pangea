@@ -90,7 +90,7 @@ commands:
           gateway:
             description: "The gateway to claim the daily reward."
         description: "Economy » Get your daily reward."
-        alreadyClaimed: "You have already claimed your daily reward. Come back in <t:{0}:F>"
+        alreadyClaimed: "You have already claimed your daily reward. Come back in <t:{0}:F>."
         claimed: "You claimed your daily reward. You received {0} {1}."
       bet:
         options:
