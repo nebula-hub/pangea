@@ -6,12 +6,22 @@ commands:
   hierarchyError: "Minha função está abaixo da função do usuário que você deseja punir."
   commandExecutedBy: "Comando executado por {0}"
   voiceChannelOnly: "Você precisa entrar em um canal de voz primeiro para usar esse comando."
+  modules:
+    localEconomy:
+      disabled: "A economia local está desativada neste servidor."
   common:
     enabled: "Sim"
     disabled: "Não"
   buttons:
     expired: "Parece que a interação expirou... Algo me diz que você não pode mais usar este botão."
     unban: "Desbanir"
+    previous: "Anterior"
+    next: "Próximo"
+    accept: "Aceitar"
+    decline: "Recusar"
+    notEnoughCurrency: "{0} insuficientes"
+    bettedSuccessfully: "Aposta encerrada"
+    betDeclined: "Aposta recusada"
   command:
     pangea:
       description: "Comandos relacionados ao Pangea."
@@ -48,6 +58,59 @@ commands:
             description: "O malfeitor a ser banido."
           reason:
             description: "O motivo da punição. (Opcional)"
+    currency:
+      description: "Comandos relacionados à economia."
+      balance:
+        options:
+          user:
+            description: "O usuário que você deseja verificar o saldo."
+        description: "Economia » Verifique seu saldo."
+        balanceText: "Você tem {0} {1}"
+        otherBalanceText: "{0} tem {1} {2}"
+        rankingText: "Você está em `#{0}` no ranking de {1}"
+      rank:
+        options:
+          gateway: "O gateway para verificar o ranking."
+        description: "Economia » Verifique o ranking de moedas."
+        embedTitle: "Ranking de {0} - {1}"
+        embedFooter: "Página {0} de {1}"
+        alreadyAtFirstPage: "Você já está na primeira página."
+        alreadyAtLastPage: "Você já está na última página"
+        previous: "Anterior"
+        next: "Próximo"
+      daily:
+        options:
+          gateway: "O gateway para reivindicar a recompensa diária."
+        description: "Economia » Receba sua recompensa diária."
+        alreadyClaimed: "Você já pegou a sua recompensa diária. Volte em <t:{0}:F>."
+        claimed: "Você pegou {0} {1} da sua recompensa diária."
+      bet:
+        options:
+          target:
+            description: "O usuário com quem você deseja apostar."
+          amount:
+            description: "A quantidade de moedas que você deseja apostar."
+          gateway:
+            description: "O gateway para apostar."
+        description: Economia » Aposte moedas com outro usuário."
+        youDontHaveSufficientCurrency: "Você não tem {0} o suficiente para apostar."
+        targetDontHaveSufficientCurrency: "{0} não tem {1} o suficiente para apostar com você."
+        userWantsToBetWithYou: "{0} quer apostar {1} {2} com você, {3}. Você aceita?"
+        howItWorks: "**Mas como isso funciona?** Basicamente eu rolarei dois dados, um pra você e outro para {0}. O maior dado vence, Se você ganhar, você receberá {1} {2}. Se você perder, você perderá {1} {2}"
+        authorDice: "Seu dado: `{0}`"
+        targetDice: "Dado de {0}: `{1}`"
+        successfullyWon: "Parabéns {0}! Você ganhou {1} {2} de {3}."
+        tie: "Empate! Ninguém ganhou nada."
+        declined: "{0} recusou a aposta."
+      slots:
+        options:
+          amount:
+            description: "A quantidade de moedas que você deseja apostar."
+        description: "Economia » Jogue nas máquinas caça-níqueis."
+        notEnoughCurrency: "Você não tem {0} o suficiente para jogar."
+        youWon: "Parabéns, você ganhou {0} {1}!"
+        youLose: "Que pena, você perdeu {0} {1}."
+        result: "Resultado"
     music:
       description: "Comandos relacionados a música"
       thereIsntAnySongPlaying: "Não tem nenhuma música tocando agora"

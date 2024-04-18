@@ -7,8 +7,4 @@ object Emojis {
         "enabled" to "<:enabled_switch:1230149128059752489>",
         "disabled" to "<:disabled_switch:1230148764766044291>"
     )
-
-    val unicode = mutableMapOf(
-        "star" to "⭐"
-    )
 }

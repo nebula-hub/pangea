@@ -6,12 +6,22 @@ commands:
   hierarchyError: "My role is below the user's role that you want to punish."
   commandExecutedBy: "Command executed by {0}"
   voiceChannelOnly: "You need to enter a voice channel first to use this command."
+  modules:
+    localEconomy:
+      disabled: "Local Economy is disabled in this server."
   common:
     enabled: "Yes"
     disabled: "No"
   buttons:
     expired: "It looks like the interaction has been expired... I guess you cannot use this button anymore."
     unban: "Unban"
+    previous: "Previous"
+    next: "Next"
+    accept: "Accept"
+    decline: "Decline"
+    notEnoughCurrency: "Insufficient {0}"
+    bettedSuccessfully: "Bet successfully closed"
+    betDeclined: "Bet declined"
   command:
     pangea:
       description: "Pangea related commands."
@@ -48,6 +58,69 @@ commands:
             description: "The evildoer to be banned."
           reason:
             description: "The reason for the punishment. (Optional)"
+    currency:
+      description: "Economy related commands."
+      balance:
+        options:
+          user:
+            description: "The user to check the balance."
+          gateway:
+            description: "The gateway to check the balance."
+        description: "Economy » Check your balance."
+        balanceText: "You have {0} {1}"
+        otherBalanceText: "{0} has {1} {2}"
+        rankingText: "You are in `#{0}` in {1} ranking"
+        localEconomyDisabled: "Local Economy is disabled in this server."
+      rank:
+        options:
+          gateway:
+            description: "The gateway to claim the daily reward."
+        description: "Economy » Check the server's ranking."
+        embedTitle: "Ranking of {0} - {1}"
+        embedFooter: "Page {0} of {1}"
+        alreadyAtFirstPage: "You are already in the first page."
+        alreadyAtLastPage: "You are already in the last page."
+        localEconomyDisabled: "Local Economy is disabled in this server."
+        previous: "Previous"
+        next: "Next"
+      daily:
+        options:
+          user:
+            description: "The user to claim the daily reward."
+          gateway:
+            description: "The gateway to claim the daily reward."
+        description: "Economy » Get your daily reward."
+        alreadyClaimed: "You have already claimed your daily reward. Come back in <t:{0}:F>"
+        claimed: "You claimed your daily reward. You received {0} {1}."
+      bet:
+        options:
+          user:
+            description: "The user to bet with."
+          amount:
+            description: "The amount to bet."
+          gateway:
+            description: "The gateway to bet."
+        description: "Economy » Bet coins with another user."
+        youDontHaveSufficientCurrency: "You don't have enough {0} to bet."
+        targetDontHaveSufficientCurrency: "{0} doesn't have enough {1} to bet with you."
+        userWantToBet: "{0} wants to bet {1} {2} with you. Do you accept?"
+        howItWorks: "**But, how it works?** Basically I will roll two dies, one for you and one for {0}. The highest number wins. If you win, you will receive {1} {2}. If you lose, you will lose {1} {2}."
+        authorDice: "Your die: `{0}`"
+        targetDice: "{0}'s die: `{1}`"
+        successfullyWon: "Congratulations {0}! You have won {1} {2} from {3}"
+        tie: "Tie! Nobody won anything."
+        declined: "{0} declined the bet."
+      slots:
+        options:
+          amount:
+            description: "The amount to bet."
+          gateway:
+            description: "The gateway to bet."
+        description: "Economy » Bet currency in a slot machine."
+        notEnoughCurrency: "You don't have enough {0} to play."
+        youWon: "Congratulations, you won {0} {1}!"
+        youLose: "Too bad, you lost {0} {1}."
+        result: "Result"
     music:
       description: "Music related commands."
       thereIsntAnySongPlaying: "There is no song playing now."
