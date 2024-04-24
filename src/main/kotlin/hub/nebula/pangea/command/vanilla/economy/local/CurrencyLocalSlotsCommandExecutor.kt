@@ -1,4 +1,4 @@
-package hub.nebula.pangea.command.vanilla.economy
+package hub.nebula.pangea.command.vanilla.economy.local
 
 import hub.nebula.pangea.command.PangeaInteractionContext
 import hub.nebula.pangea.command.structure.PangeaSlashCommandExecutor
@@ -6,20 +6,42 @@ import hub.nebula.pangea.command.vanilla.economy.declaration.CurrencyCommand.Com
 import hub.nebula.pangea.utils.*
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 
-class CurrencySlotsCommandExecutor : PangeaSlashCommandExecutor() {
+class CurrencyLocalSlotsCommandExecutor : PangeaSlashCommandExecutor() {
     override suspend fun execute(context: PangeaInteractionContext) {
-        val amount = context.getOption("amount")!!.asLong
+        if (context.guild == null) {
+            context.reply(true) {
+                pretty(
+                    context.locale["commands.guildOnly"]
+                )
+            }
+            return
+        }
+
+        val guild = context.pangeaGuild!!
+
+        if (!guild.localEconomy) {
+            context.reply(true) {
+                pretty(
+                    context.locale["commands.modules.localEconomy.disabled"]
+                )
+            }
+            return
+        }
 
         context.defer()
 
-        val author = newSuspendedTransaction {
-            context.pangeaUser
+        val member = newSuspendedTransaction {
+            guild.getMember(context.member!!.idLong)
+        } ?: newSuspendedTransaction {
+            guild.registerMember(context.member!!.idLong)
         }
 
-        if (author.currency < amount) {
+        val amount = context.getOption("amount")!!.asLong
+
+        if (member.currency < amount) {
             context.reply {
                 pretty(
-                    context.locale["$LOCALE_PREFIX.slots.notEnoughCurrency", "Stardusts"]
+                    context.locale["$LOCALE_PREFIX.slots.notEnoughCurrency", guild.currencyNamePlural]
                 )
             }
             return
@@ -63,14 +85,16 @@ class CurrencySlotsCommandExecutor : PangeaSlashCommandExecutor() {
 
         if (multiplier > 0) {
             winnedAmount = amount * multiplier
-            winMessage = context.locale["$LOCALE_PREFIX.slots.youWon", winnedAmount.toString(), if (winnedAmount == 1L) "Stardust" else "Stardusts"]
+            winMessage = context.locale["$LOCALE_PREFIX.slots.youWon", winnedAmount.toString(), if (winnedAmount == 1L) guild.currencyName else guild.currencyNamePlural]
         } else {
             winnedAmount = -amount
-            winMessage = context.locale["$LOCALE_PREFIX.slots.youLose", amount.toString(), if (amount == 1L) "Stardust" else "Stardusts"]
+            winMessage = context.locale["$LOCALE_PREFIX.slots.youLose", amount.toString(), if (amount == 1L) guild.currencyName else guild.currencyNamePlural]
         }
 
+        member.currency += winnedAmount
+
         newSuspendedTransaction {
-            author.currency += winnedAmount
+            guild.updateMember(member)
         }
 
         context.reply {

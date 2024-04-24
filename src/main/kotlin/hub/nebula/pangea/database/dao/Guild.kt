@@ -25,6 +25,8 @@ class Guild(id: EntityID<Long>) : LongEntity(id) {
     var welcomer by Guilds.welcomer
     var welcomerChannel by Guilds.welcomer_channel
     var welcomerMessage by Guilds.welcomer_message
+    var autorole by Guilds.autorole
+    var autoroleRolesIds by Guilds.autorole_roles_ids
     var eventLogger by Guilds.event_logger
     var eventLoggerChannel by Guilds.event_logger_channel
     var eventLoggerLog by Guilds.event_logger_log

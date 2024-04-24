@@ -15,7 +15,7 @@ class PangeaCommand : PangeaSlashCommandDeclarationWrapper {
         subCommand(
             "ping",
             "pangea.ping.description",
-            this@command.name
+            baseName = this@command.name
         ) {
             executor = PangeaPingCommandExecutor()
         }
@@ -23,7 +23,7 @@ class PangeaCommand : PangeaSlashCommandDeclarationWrapper {
         subCommand(
             "info",
             "pangea.info.description",
-            this@command.name
+            baseName = this@command.name
         ) {
             executor = PangeaInfoCommandExecutor()
         }
@@ -31,7 +31,7 @@ class PangeaCommand : PangeaSlashCommandDeclarationWrapper {
         subCommand(
             "config",
             "pangea.config.description",
-            this@command.name
+            baseName = this@command.name
         ) {
             executor = PangeaConfigCommandExecutor()
         }

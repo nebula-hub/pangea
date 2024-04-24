@@ -54,7 +54,7 @@ class PangeaComponentManager {
         if (targetUserId != it.user.idLong) {
             it.reply(true) {
                 pretty(
-                    it.locale["commands.onlyUserCanInteractWithThisComponent", it.user.asMention, targetUserId.toString()]
+                    it.locale["commands.onlyUserCanInteractWithThisComponent", "<@${targetUserId}>", targetUserId.toString()]
                 )
             }
 
@@ -103,7 +103,7 @@ class PangeaComponentManager {
         if (target.idLong != context.user.idLong) {
             context.reply(true) {
                 pretty(
-                    context.locale["commands.onlyUserCanInteractWithThisComponent", context.user.asMention, target.id]
+                    context.locale["commands.onlyUserCanInteractWithThisComponent", target.asMention, target.id]
                 )
             }
             return@stringSelectMenu

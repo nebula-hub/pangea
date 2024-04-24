@@ -18,7 +18,7 @@ class MusicCommand : PangeaSlashCommandDeclarationWrapper {
         subCommand(
             "play",
             "$LOCALE_PREFIX.play.description",
-            this@command.name
+            baseName = this@command.name
         ) {
             addOption(
                 OptionData(
@@ -45,7 +45,7 @@ class MusicCommand : PangeaSlashCommandDeclarationWrapper {
         subCommand(
             "search",
             "$LOCALE_PREFIX.search.description",
-            this@command.name
+            baseName = this@command.name
         ) {
             addOption(
                 OptionData(
@@ -72,7 +72,7 @@ class MusicCommand : PangeaSlashCommandDeclarationWrapper {
         subCommand(
             "queue",
             "$LOCALE_PREFIX.queue.description",
-            this@command.name
+            baseName = this@command.name
         ) {
             executor = MusicQueueCommandExecutor()
         }
@@ -80,7 +80,7 @@ class MusicCommand : PangeaSlashCommandDeclarationWrapper {
         subCommand(
             "nowplaying",
             "$LOCALE_PREFIX.nowplaying.description",
-            this@command.name
+            baseName = this@command.name
         ) {
             executor = MusicNowPlayingCommandExecutor()
         }
@@ -88,7 +88,7 @@ class MusicCommand : PangeaSlashCommandDeclarationWrapper {
         subCommand(
             "skip",
             "$LOCALE_PREFIX.skip.description",
-            this@command.name
+            baseName = this@command.name
         ) {
             executor = MusicSkipCommandExecutor()
         }
@@ -96,7 +96,7 @@ class MusicCommand : PangeaSlashCommandDeclarationWrapper {
         subCommand(
             "stop",
             "$LOCALE_PREFIX.stop.description",
-            this@command.name
+            baseName = this@command.name
         ) {
             executor = MusicStopCommandExecutor()
         }
@@ -104,7 +104,7 @@ class MusicCommand : PangeaSlashCommandDeclarationWrapper {
         subCommand(
             "pause",
             "$LOCALE_PREFIX.pause.description",
-            this@command.name
+            baseName = this@command.name
         ) {
             executor = MusicPauseCommandExecutor()
         }
@@ -112,7 +112,7 @@ class MusicCommand : PangeaSlashCommandDeclarationWrapper {
         subCommand(
             "resume",
             "$LOCALE_PREFIX.resume.description",
-            this@command.name
+            baseName = this@command.name
         ) {
             executor = MusicResumeCommandExecutor()
         }

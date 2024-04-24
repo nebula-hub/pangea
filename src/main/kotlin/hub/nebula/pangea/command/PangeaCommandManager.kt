@@ -25,8 +25,16 @@ class PangeaCommandManager(private val pangea: PangeaInstance) {
 
     suspend fun handle(): MutableList<Command>? {
         val action = pangea.jda.updateCommands()
+        val privateGuild = pangea.jda.getGuildById(pangea.config.mainLand.id)!!
 
         commands.forEach { command ->
+            if (command.create().isPrivate) {
+                privateGuild.updateCommands().addCommands(
+                    command.create().build()
+                ).await()
+                logger.info { "Registered /${command.create().name} private command!" }
+            }
+
             action.addCommands(
                 command.create().build()
             )

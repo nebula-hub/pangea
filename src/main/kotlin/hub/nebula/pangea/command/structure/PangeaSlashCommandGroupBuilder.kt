@@ -6,8 +6,8 @@ class PangeaSlashCommandGroupBuilder(
 ) {
     val subCommands = mutableListOf<PangeaSlashCommandDeclarationBuilder>()
 
-    fun subCommand(name: String, description: String, block: PangeaSlashCommandDeclarationBuilder.() -> Unit) {
-        val subCommand = PangeaSlashCommandDeclarationBuilder(name, description)
+    fun subCommand(name: String, description: String, isPrivate: Boolean = false, block: PangeaSlashCommandDeclarationBuilder.() -> Unit) {
+        val subCommand = PangeaSlashCommandDeclarationBuilder(name, description, isPrivate)
         subCommand.block()
         subCommands.add(subCommand)
     }

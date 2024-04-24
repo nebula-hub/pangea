@@ -10,6 +10,7 @@ import hub.nebula.pangea.command.vanilla.music.declaration.MusicCommand.Companio
 import hub.nebula.pangea.utils.connect
 import hub.nebula.pangea.utils.isValidUrl
 import hub.nebula.pangea.utils.pretty
+import net.dv8tion.jda.api.exceptions.InsufficientPermissionException
 import net.dv8tion.jda.api.interactions.components.buttons.Button
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle
 
@@ -60,56 +61,66 @@ class MusicSearchCommandExecutor : PangeaSlashCommandExecutor() {
 
         when (val item = instance.link.loadItem(search)) {
             is LoadResult.SearchResult -> {
-                val songs = item.data.tracks.take(25)
+                val songs = item.data.tracks.take(10)
 
-                context.reply(true) {
-                    embed {
-                        title = context.locale["$LOCALE_PREFIX.search.title"]
-                        description = context.locale["$LOCALE_PREFIX.search.iFound", songs.size.toString()]
+                try {
+                    context.reply(true) {
+                        embed {
+                            title = context.locale["$LOCALE_PREFIX.search.title"]
+                            description = context.locale["$LOCALE_PREFIX.search.iFound", songs.size.toString()]
+                        }
+
+                        actionRow(
+                            context.pangea.interactionManager
+                                .stringSelectMenuForUser(context.user, {
+                                    setMaxValues(1)
+
+                                    for ((i, song) in songs.withIndex()) {
+                                        val content = "${i + 1}. ${song.info.title}"
+
+                                        addOption(content, song.info.uri!!, content)
+                                    }
+                                }) { selectMenuContext, strings ->
+                                    selectMenuContext.deferEdit()
+
+                                    selectMenuContext.edit {
+                                        actionRow(
+                                            Button.of(
+                                                ButtonStyle.SUCCESS,
+                                                "-",
+                                                selectMenuContext.locale["$LOCALE_PREFIX.search.selectedSongSuccessfully"]
+                                            ).asDisabled()
+                                        )
+                                    }
+
+                                    instance.link.connect(context, memberVoiceState.channelId)
+
+                                    val selected = songs.first { it.info.uri == strings.first()}
+
+                                    instance.scheduler.queue(selected)
+
+                                    if (instance.scheduler.queue.isNotEmpty()) {
+                                        selectMenuContext.reply {
+                                            pretty(
+                                                selectMenuContext.locale["$LOCALE_PREFIX.search.addedToQueue", selected.info.title, selected.info.uri!!]
+                                            )
+                                        }
+                                    } else {
+                                        selectMenuContext.reply {
+                                            pretty(
+                                                selectMenuContext.locale["$LOCALE_PREFIX.search.playingNow", selected.info.title, selected.info.uri!!]
+                                            )
+                                        }
+                                    }
+                                }
+                        )
                     }
-
-                    actionRow(
-                        context.pangea.interactionManager
-                            .stringSelectMenuForUser(context.user, {
-                                setMaxValues(1)
-
-                                for ((i, song) in songs.withIndex()) {
-                                    addOption("${i + 1}. ${song.info.author} - ${song.info.title}", song.info.uri!!)
-                                }
-                            }) { selectMenuContext, strings ->
-                                selectMenuContext.deferEdit()
-
-                                selectMenuContext.edit {
-                                    actionRow(
-                                        Button.of(
-                                            ButtonStyle.SUCCESS,
-                                            "-",
-                                            selectMenuContext.locale["$LOCALE_PREFIX.search.selectedSongSuccessfully"]
-                                        ).asDisabled()
-                                    )
-                                }
-
-                                instance.link.connect(context, memberVoiceState.channelId)
-
-                                val selected = songs.first { it.info.uri == strings.first()}
-
-                                instance.scheduler.queue(selected)
-
-                                if (instance.scheduler.queue.isNotEmpty()) {
-                                    selectMenuContext.reply {
-                                        pretty(
-                                            selectMenuContext.locale["$LOCALE_PREFIX.search.addedToQueue", selected.info.title, selected.info.uri!!]
-                                        )
-                                    }
-                                } else {
-                                    selectMenuContext.reply {
-                                        pretty(
-                                            selectMenuContext.locale["$LOCALE_PREFIX.search.playingNow", selected.info.title, selected.info.uri!!]
-                                        )
-                                    }
-                                }
-                            }
-                    )
+                } catch (e: InsufficientPermissionException) {
+                    context.reply(true) {
+                        pretty(
+                            context.locale["$LOCALE_PREFIX.play.loadFailed", e.message.toString()]
+                        )
+                    }
                 }
             }
 

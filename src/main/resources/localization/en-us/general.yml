@@ -39,6 +39,8 @@ commands:
         embedRAMUsage: "RAM Usage"
         sourceCode: "Source Code"
         inviteMe: "Invite me to your server"
+        mostPlayedSong: "Most Played Song (top 10)"
+        supportServer: "Support Server"
     admin:
       description: "Administration related commands."
       successfullyPunished: "Member was successfully punished."
@@ -63,23 +65,61 @@ commands:
           reason:
             description: "The reason for the punishment. (Optional)"
     currency:
+      global:
+        balance:
+          description: "(Global) Economy » Check your balance."
+          options:
+            user:
+              description: "The user to check the balance."
+        rank:
+          description: "(Global) Economy » Check the Stardust ranking."
+        daily:
+          description: "(Global) Economy » Get your daily Stardusts."
+        bet:
+          description: "(Global) Economy » Bet Stardusts with another user."
+          options:
+            user:
+              description: "The user to bet with."
+            amount:
+              description: "The amount to bet."
+        slots:
+          description: "(Global) Economy » Bet Stardusts in a slot machine."
+          options:
+            amount:
+              description: "The amount to bet."
+      local:
+        balance:
+          description: "(Local) Economy » Check your balance."
+          options:
+            user:
+              description: "The user to check the balance."
+        rank:
+          description: "(Local) Economy » Check the server's ranking."
+        daily:
+          description: "(Local) Economy » Get your daily reward."
+        bet:
+          description: "(Local) Economy » Bet coins with another user."
+          options:
+            user:
+              description: "The user to bet with."
+            amount:
+              description: "The amount to bet."
+        slots:
+          description: "(Local) Economy » Bet coins in a slot machine."
+          options:
+            amount:
+              description: "The amount to bet."
       description: "Economy related commands."
       balance:
         options:
           user:
             description: "The user to check the balance."
-          gateway:
-            description: "The gateway to check the balance."
-        description: "Economy » Check your balance."
         balanceText: "You have {0} {1}"
         otherBalanceText: "{0} has {1} {2}"
-        rankingText: "You are in `#{0}` in {1} ranking"
+        rankingText: "You are at `#{0}` place in {1} ranking"
+        otherRankingText: "This person is at `#{0}` place in {1} ranking"
         localEconomyDisabled: "Local Economy is disabled in this server."
       rank:
-        options:
-          gateway:
-            description: "The gateway to claim the daily reward."
-        description: "Economy » Check the server's ranking."
         embedTitle: "Ranking of {0} - {1}"
         embedFooter: "Page {0} of {1}"
         alreadyAtFirstPage: "You are already in the first page."
@@ -88,10 +128,6 @@ commands:
         previous: "Previous"
         next: "Next"
       daily:
-        options:
-          gateway:
-            description: "The gateway to claim the daily reward."
-        description: "Economy » Get your daily reward."
         alreadyClaimed: "[{0}] You have already claimed your daily reward. Come back in <t:{1}:F>."
         claimed: "[{0}] You claimed your daily reward. You received {1} {2}."
       bet:
@@ -100,12 +136,9 @@ commands:
             description: "The user to bet with."
           amount:
             description: "The amount to bet."
-          gateway:
-            description: "The gateway to bet."
-        description: "Economy » Bet coins with another user."
         youDontHaveSufficientCurrency: "You don't have enough {0} to bet."
         targetDontHaveSufficientCurrency: "{0} doesn't have enough {1} to bet with you."
-        userWantToBet: "{0} wants to bet {1} {2} with you. Do you accept?"
+        userWantsToBetWithYou: "{0} wants to bet {1} {2} with you. Do you accept?"
         howItWorks: "**But, how it works?** Basically I will roll two dies, one for you and one for {0}. The highest number wins. If you win, you will receive {1} {2}. If you lose, you will lose {1} {2}."
         authorDice: "Your die: `{0}`"
         targetDice: "{0}'s die: `{1}`"
@@ -116,9 +149,6 @@ commands:
         options:
           amount:
             description: "The amount to bet."
-          gateway:
-            description: "The gateway to bet."
-        description: "Economy » Bet currency in a slot machine."
         notEnoughCurrency: "You don't have enough {0} to play."
         youWon: "Congratulations, you won {0} {1}!"
         youLose: "Too bad, you lost {0} {1}."

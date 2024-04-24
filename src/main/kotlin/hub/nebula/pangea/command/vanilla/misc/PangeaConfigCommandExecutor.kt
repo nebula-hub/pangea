@@ -3,10 +3,7 @@ package hub.nebula.pangea.command.vanilla.misc
 import dev.minn.jda.ktx.coroutines.await
 import hub.nebula.pangea.command.PangeaInteractionContext
 import hub.nebula.pangea.command.structure.PangeaSlashCommandExecutor
-import hub.nebula.pangea.utils.Constants
-import hub.nebula.pangea.utils.Emojis
-import hub.nebula.pangea.utils.edit
-import hub.nebula.pangea.utils.pretty
+import hub.nebula.pangea.utils.*
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.interactions.components.ActionRow
 import net.dv8tion.jda.api.interactions.components.buttons.Button
@@ -39,7 +36,8 @@ class PangeaConfigCommandExecutor : PangeaSlashCommandExecutor() {
             "Pretty Bans" to context.pangeaGuild.prettyBans,
             "Local Economy" to context.pangeaGuild.localEconomy,
             "Welcomer" to context.pangeaGuild.welcomer,
-            "Event Logger" to context.pangeaGuild.eventLogger
+            "Event Logger" to context.pangeaGuild.eventLogger,
+            "Autorole" to context.pangeaGuild.autorole
         )
 
         context.reply {
@@ -188,6 +186,9 @@ class PangeaConfigCommandExecutor : PangeaSlashCommandExecutor() {
                                             appendLine("· **Currency Name**: ${it.pangeaGuild.currencyName}/${it.pangeaGuild.currencyNamePlural}")
                                             appendLine("· **Min Daily Reward**: ${it.pangeaGuild.currencyDailyMin} ${if (it.pangeaGuild.currencyDailyMin == 1L) it.pangeaGuild.currencyName else it.pangeaGuild.currencyNamePlural}")
                                             appendLine("· **Max Daily Reward**: ${it.pangeaGuild.currencyDailyMax} ${if (it.pangeaGuild.currencyDailyMax == 1L) it.pangeaGuild.currencyName else it.pangeaGuild.currencyNamePlural}")
+                                            appendLine()
+                                            appendLine("· If you want to manage someone else's coins, you can press the button below.")
+                                            appendLine("· The keywords are `increment`, `remove` and `set`.")
                                         }.toString()
                                     }
                                 }
@@ -196,7 +197,7 @@ class PangeaConfigCommandExecutor : PangeaSlashCommandExecutor() {
                             if (it.pangeaGuild!!.localEconomy) {
                                 actionRow(
                                     it.pangea.interactionManager
-                                        .createButtonForUser(context.user, ButtonStyle.PRIMARY, "Make Changes") {
+                                        .createButtonForUser(context.user, ButtonStyle.PRIMARY, "Configure") {
                                             it.sendModal(
                                                 it.pangea.interactionManager
                                                     .createModal("Local Economy Configuration", {
@@ -299,6 +300,89 @@ class PangeaConfigCommandExecutor : PangeaSlashCommandExecutor() {
                                             )
                                         },
                                     it.pangea.interactionManager
+                                        .createButtonForUser(context.user, ButtonStyle.PRIMARY, "Manage Coins") {
+                                            it.sendModal(
+                                                it.pangea.interactionManager
+                                                    .createModal("Manage Someone's coins", {
+                                                        val user = TextInput.create("user", "User", TextInputStyle.SHORT)
+                                                            .setPlaceholder("User")
+                                                            .setRequired(true)
+                                                            .build()
+                                                        val keyword = TextInput.create("keyword", "Keyword", TextInputStyle.SHORT)
+                                                            .setPlaceholder("increment, remove or set")
+                                                            .setRequired(true)
+                                                            .build()
+                                                        val quantity = TextInput.create("quantity", "Quantity", TextInputStyle.SHORT)
+                                                            .setPlaceholder("Quantity")
+                                                            .setRequired(true)
+                                                            .setMaxLength(16)
+                                                            .build()
+
+                                                        components = listOf(
+                                                            ActionRow.of(
+                                                                user
+                                                            ),
+                                                            ActionRow.of(
+                                                                keyword
+                                                            ),
+                                                            ActionRow.of(
+                                                                quantity
+                                                            )
+                                                        )
+                                                    }) {
+                                                        val userId = it.getValue("user")!!.asString
+                                                        val keyword = it.getValue("keyword")!!.asString
+                                                        val quantity = it.getValue("quantity")!!.asString.toLong()
+
+                                                        val member = newSuspendedTransaction {
+                                                            it.pangeaGuild!!.getMember(userId.toLong())
+                                                        }
+
+                                                        if (member == null) {
+                                                            it.reply(true) {
+                                                                pretty("I could not find this user anywhere...")
+                                                            }
+                                                            return@createModal
+                                                        }
+
+                                                        when (keyword) {
+                                                            "increment" -> {
+                                                                member.currency += quantity
+                                                            }
+                                                            "remove" -> {
+                                                                member.currency -= quantity
+                                                            }
+                                                            "set" -> {
+                                                                member.currency = quantity
+                                                            }
+                                                            else -> {
+                                                                it.reply(true) {
+                                                                    pretty("I don't recognize this keyword. Please use `increment`, `remove` or `set`.")
+                                                                }
+                                                                return@createModal
+                                                            }
+                                                        }
+
+                                                        if (quantity < 0) {
+                                                            it.reply(true) {
+                                                                pretty("So... how do you plan to increment or remove a negative amount of ${it.pangeaGuild!!.currencyNamePlural}")
+                                                            }
+                                                            return@createModal
+                                                        }
+
+                                                        newSuspendedTransaction {
+                                                            it.pangeaGuild!!.updateMember(member)
+                                                        }
+
+                                                        it.reply(true) {
+                                                            pretty(
+                                                                "Coins have been managed."
+                                                            )
+                                                        }
+                                                    }
+                                            )
+                                        },
+                                    it.pangea.interactionManager
                                         .createButtonForUser(context.user, ButtonStyle.DANGER, "Disable") {
                                             val hook = it.deferEdit()
 
@@ -352,6 +436,120 @@ class PangeaConfigCommandExecutor : PangeaSlashCommandExecutor() {
                                             it.reply(true) {
                                                 pretty(
                                                     "Local Economy has been enabled in this server."
+                                                )
+                                            }
+                                        }
+                                )
+                            }
+                        }
+                    },
+                context.pangea.interactionManager
+                    .createButtonForUser(context.user, ButtonStyle.PRIMARY, "Autorole") {
+                        val hook = it.deferEdit()
+
+                        hook?.edit {
+                            embed {
+                                title = "Autorole · Configuration"
+                                color = Constants.DEFAULT_COLOR
+
+                                description = StringBuilder().apply {
+                                    if (it.pangeaGuild!!.autorole) {
+                                        appendLine("Autorole is enabled in this server.")
+                                        appendLine()
+                                        appendLine("· **Roles**: ${it.pangeaGuild.autoroleRolesIds?.joinToString(", ") { "<@&$it>" } ?: "No roles set"}")
+                                    } else {
+                                        appendLine("Autorole is disabled in this server.")
+                                    }
+                                }.toString()
+                            }
+
+                            if (it.pangeaGuild!!.autorole) {
+                                actionRow(
+                                    it.pangea.interactionManager
+                                        .createButtonForUser(context.user, ButtonStyle.PRIMARY, "Configure") {
+                                            it.sendModal(
+                                                it.pangea.interactionManager.createModal("Set up autorole", {
+                                                    val roles = TextInput.create("roles", "Roles", TextInputStyle.SHORT)
+                                                        .setPlaceholder("eg. <role_id_1>, <role_id_2> - 2131267863217836, 213723892173832")
+                                                        .setRequired(true)
+                                                        .build()
+
+                                                    components = listOf(
+                                                        ActionRow.of(roles)
+                                                    )
+                                                }) {
+                                                    val hook = it.deferEdit()
+
+                                                    val roles = it.getValue("roles")!!.asString
+                                                        .split(", ")
+                                                        .map { it.replace("<@&", "").replace(">", "").toLong() }
+
+                                                    newSuspendedTransaction {
+                                                        it.pangeaGuild!!.autoroleRolesIds = roles
+                                                    }
+
+                                                    hook?.edit {
+                                                        embed {
+                                                            title = "Autorole · Configuration"
+                                                            color = Constants.DEFAULT_COLOR
+
+                                                            description = "Autorole is enabled in this server."
+
+                                                            field {
+                                                                name = "Roles"
+                                                                value = roles.joinToString(", ") { "<@&$it>" }
+                                                            }
+                                                        }
+
+                                                        actionRow(
+                                                            Button.of(ButtonStyle.SUCCESS, "-", "Roles updated").asDisabled()
+                                                        )
+                                                    }
+                                                }
+                                            )
+                                        },
+                                    it.pangea.interactionManager
+                                        .createButtonForUser(context.user, ButtonStyle.DANGER, "Disable") {
+                                            val hook = it.deferEdit()
+
+                                            newSuspendedTransaction {
+                                                it.pangeaGuild!!.autorole = false
+                                            }
+
+                                            hook?.edit {
+                                                embed {
+                                                    title = "Autorole · Configuration"
+                                                    color = Constants.DEFAULT_COLOR
+
+                                                    description = "Autorole is now disabled in this server!"
+                                                }
+
+                                                actionRow(
+                                                    Button.of(ButtonStyle.DANGER, "-", "Disabled").asDisabled()
+                                                )
+                                            }
+                                        }
+                                )
+                            } else {
+                                actionRow(
+                                    it.pangea.interactionManager
+                                        .createButtonForUser(context.user, ButtonStyle.SUCCESS, "Enable") {
+                                            val hook = it.deferEdit()
+
+                                            newSuspendedTransaction {
+                                                it.pangeaGuild!!.autorole = true
+                                            }
+
+                                            hook?.edit {
+                                                embed {
+                                                    title = "Autorole · Configuration"
+                                                    color = Constants.DEFAULT_COLOR
+
+                                                    description = "Autorole is now enabled in this server!"
+                                                }
+
+                                                actionRow(
+                                                    Button.of(ButtonStyle.SUCCESS, "-", "Enabled").asDisabled()
                                                 )
                                             }
                                         }

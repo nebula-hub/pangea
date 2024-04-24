@@ -1,33 +1,55 @@
-package hub.nebula.pangea.command.vanilla.economy
+package hub.nebula.pangea.command.vanilla.economy.local
 
 import dev.minn.jda.ktx.coroutines.await
 import hub.nebula.pangea.command.PangeaInteractionContext
 import hub.nebula.pangea.command.structure.PangeaSlashCommandExecutor
 import hub.nebula.pangea.command.vanilla.economy.declaration.CurrencyCommand.Companion.LOCALE_PREFIX
-import hub.nebula.pangea.database.dao.User
 import hub.nebula.pangea.utils.Constants
 import hub.nebula.pangea.utils.pretty
+import hub.nebula.pangea.utils.retrieveAllMembers
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 
-class CurrencyRankCommandExecutor : PangeaSlashCommandExecutor() {
+class CurrencyLocalRankCommandExecutor : PangeaSlashCommandExecutor() {
     override suspend fun execute(context: PangeaInteractionContext) {
-        val currencyRanking = newSuspendedTransaction {
-            User.all().sortedByDescending { it.currency }
-                .mapIndexed { index, user ->
-                    val u = context.jda.retrieveUserById(user.userId).await()
+        if (context.guild == null) {
+            context.reply(true) {
+                pretty(
+                    context.locale["commands.guildOnly"]
+                )
+            }
+            return
+        }
 
-                    "${index + 1}. ${u.name} - ${user.currency} ${if (user.currency == 1L) "Stardust" else "Stardusts"}"
+        val guild = context.pangeaGuild!!
+
+        if (!guild.localEconomy) {
+            context.reply(true) {
+                pretty(
+                    context.locale["commands.modules.localEconomy.disabled"]
+                )
+            }
+            return
+        }
+
+        context.defer()
+
+        val members = newSuspendedTransaction {
+            guild.retrieveAllMembers()
+                .sortedByDescending { it.currency }
+                .mapIndexed {index, member ->
+                    val u = context.jda.retrieveUserById(member.id).await()
+
+                    "${index + 1}. ${u.name} - ${member.currency} ${if (member.currency == 1L) context.pangeaGuild.currencyName else context.pangeaGuild.currencyNamePlural}"
                 }
-                .toList()
         }
 
         var currentPage = 0
-        val pages = currencyRanking.chunked(10)
+        val pages = members.chunked(10)
 
         context.reply {
             embed {
-                title = context.locale["$LOCALE_PREFIX.rank.embedTitle", "Stardusts", "Global"]
+                title = context.locale["$LOCALE_PREFIX.rank.embedTitle", context.pangeaGuild.currencyNamePlural, "Local"]
                 description = pages[currentPage].joinToString("\n")
                 color = Constants.DEFAULT_COLOR
                 thumbnail = context.jda.selfUser.effectiveAvatarUrl
@@ -50,7 +72,7 @@ class CurrencyRankCommandExecutor : PangeaSlashCommandExecutor() {
 
                             it.edit {
                                 embed {
-                                    title = context.locale["$LOCALE_PREFIX.rank.embedTitle", "Stardusts", "Global"]
+                                    title = context.locale["$LOCALE_PREFIX.rank.embedTitle", context.pangeaGuild.currencyNamePlural, "Local"]
                                     description = pages[currentPage].joinToString("\n")
                                     color = Constants.DEFAULT_COLOR
                                     thumbnail = context.jda.selfUser.effectiveAvatarUrl
@@ -74,7 +96,7 @@ class CurrencyRankCommandExecutor : PangeaSlashCommandExecutor() {
 
                             it.edit {
                                 embed {
-                                    title = context.locale["$LOCALE_PREFIX.rank.embedTitle", "Stardusts", "Global"]
+                                    title = context.locale["$LOCALE_PREFIX.rank.embedTitle", context.pangeaGuild.currencyNamePlural, "Local"]
                                     description = pages[currentPage].joinToString("\n")
                                     color = Constants.DEFAULT_COLOR
                                     thumbnail = context.jda.selfUser.effectiveAvatarUrl

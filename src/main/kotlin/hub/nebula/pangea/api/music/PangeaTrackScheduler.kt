@@ -24,7 +24,14 @@ class PangeaTrackScheduler(private val link: Link, private val context: PangeaIn
             queue.offer(track)
         } else {
             logger.info { "No songs, yay, playing ${track.info.title} (${track.info.sourceName}) immediately!" }
-            link.player.playTrack(track)
+            try {
+                link.player.playTrack(track)
+            } catch (e: Exception) {
+                link.disconnectAudio()
+                PangeaInstance.pangeaPlayers.remove(link.guildId.toLong())
+
+                context.channel?.sendMessage("I've lost connection, please try again")?.await()
+            }
         }
     }
 
@@ -133,7 +140,7 @@ class PangeaTrackScheduler(private val link: Link, private val context: PangeaIn
                         val voiceData = context.pangea.voiceStateManager[context.member!!.idLong]
                         val voiceChannel = context.guild?.getVoiceChannelById(voiceData!!.channelId)
 
-                        voiceChannel?.modifyStatus("")?.await()
+                        voiceChannel?.modifyStatus("The queue is empty.")?.await()
                     }
                 }
 
@@ -141,10 +148,18 @@ class PangeaTrackScheduler(private val link: Link, private val context: PangeaIn
                     logger.info { "An error occurred when playing the track: ${event.exception}" }
 
                     context.reply {
-                        pretty(
-                            "${event.exception} - Try again or select another source to play the music."
-                        )
+                        content = "An error occurred when playing the track: ${event.exception}"
                     }
+                }
+
+                is TrackStuckEvent -> {
+                    logger.info { "The track is stuck!" }
+
+                    context.channel?.sendMessage("The track is stuck! Try again or select another source to play the music.")?.queue()
+                }
+
+                else -> {
+                    logger.info { "Unknown event: $event" }
                 }
             }
         }

@@ -16,6 +16,8 @@ object Guilds : LongIdTable() {
     var welcomer = bool("welcomer").default(false) // welcomer function
     var welcomer_channel = long("welcomer_channel").nullable().default(null) // only for welcomer function
     var welcomer_message = text("welcomer_message").nullable().default(null) // only for welcomer function
+    var autorole = bool("autorole").default(false) // autorole function
+    var autorole_roles_ids = array<Long>("autorole_roles_ids").default(emptyList()) // only for autorole function
     var event_logger = bool("event_logger").default(false) // event logger function
     var event_logger_channel = long("event_logger_channel").nullable().default(null) // only for event logger function
     var event_logger_log = array<String>("event_logger_log").default(emptyList()) // only for event logger function

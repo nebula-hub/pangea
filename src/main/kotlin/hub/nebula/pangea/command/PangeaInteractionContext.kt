@@ -8,6 +8,7 @@ import hub.nebula.pangea.database.dao.Guild
 import hub.nebula.pangea.database.dao.User
 import net.dv8tion.jda.api.entities.ISnowflake
 import net.dv8tion.jda.api.entities.Message
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
@@ -17,7 +18,7 @@ import net.dv8tion.jda.api.interactions.DiscordLocale
 import net.dv8tion.jda.api.interactions.InteractionHook
 import net.dv8tion.jda.api.interactions.modals.Modal
 import org.jetbrains.exposed.sql.transactions.transaction
-import java.security.SecureRandom
+import kotlin.random.Random
 
 class PangeaInteractionContext(
     val event: GenericInteractionCreateEvent,
@@ -25,8 +26,10 @@ class PangeaInteractionContext(
 ) {
     val jda = event.jda
     val guild = event.guild
-    val channel = event.channel
-    val random = SecureRandom()
+    val channel = if (event.isFromGuild) {
+        event.guild!!.getGuildChannelById(event.channelId!!) as TextChannel
+    } else null
+    val random = Random
     val member = event.member
     val pangeaUser = transaction {
         User.findOrCreate(event.user.idLong)

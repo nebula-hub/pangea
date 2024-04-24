@@ -13,6 +13,7 @@ import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData
 class PangeaSlashCommandDeclarationBuilder(
     val name: String,
     val description: String,
+    val isPrivate: Boolean,
     var executor: PangeaSlashCommandExecutor? = null
 ) {
     val subCommands = mutableListOf<PangeaSlashCommandDeclarationBuilder>()
@@ -23,8 +24,8 @@ class PangeaSlashCommandDeclarationBuilder(
     private val enUsLocale = PangeaLocale("en-us")
     private val ptBrLocale = PangeaLocale("pt-br")
 
-    fun subCommand(name: String, description: String, baseName: String? = null, block: PangeaSlashCommandDeclarationBuilder.() -> Unit) {
-        val subCommand = PangeaSlashCommandDeclarationBuilder(name, description)
+    fun subCommand(name: String, description: String, isPrivate: Boolean = false, baseName: String? = null, block: PangeaSlashCommandDeclarationBuilder.() -> Unit) {
+        val subCommand = PangeaSlashCommandDeclarationBuilder(name, description, isPrivate)
         subCommand.block()
         subCommands.add(subCommand)
 
@@ -33,9 +34,10 @@ class PangeaSlashCommandDeclarationBuilder(
         }
     }
 
-    fun subCommandGroup(name: String, description: String, block: PangeaSlashCommandGroupBuilder.() -> Unit) {
+    fun subCommandGroup(name: String, description: String, baseName: String, block: PangeaSlashCommandGroupBuilder.() -> Unit) {
         val group = PangeaSlashCommandGroupBuilder(name, description)
         group.block()
+        this.baseName = baseName
         subCommandGroups.add(group)
     }
 
@@ -98,6 +100,10 @@ class PangeaSlashCommandDeclarationBuilder(
                         it.subCommands.forEach { subCommand ->
                             addSubcommands(
                                 Subcommand(subCommand.name, subCommand.description) {
+                                    setDescriptionLocalizations(mapOf(
+                                        DiscordLocale.ENGLISH_US to enUsLocale["commands.command.${baseName}.${it.name}.${subCommand.name}.description"],
+                                        DiscordLocale.PORTUGUESE_BRAZILIAN to ptBrLocale["commands.command.${baseName}.${it.name}.${subCommand.name}.description"]
+                                    ))
                                     this.addOptions(subCommand.options)
                                 }
                             )

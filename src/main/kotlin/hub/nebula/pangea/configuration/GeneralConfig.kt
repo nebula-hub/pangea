@@ -24,14 +24,20 @@ data class GeneralConfig(
 
         @Serializable
         data class PangeaCometConfig(
-            val host: String,
-            val port: Int,
-            val password: String
-        )
+            val nodes: List<PangeaCometNode>
+        ) {
+            @Serializable
+            data class PangeaCometNode(
+                val host: String,
+                val port: Int,
+                val password: String,
+            )
+        }
 
         @Serializable
         data class MainLandConfig(
-            val id: Long
+            val id: Long,
+            val lavalinkChannel: Long
         )
     }
 

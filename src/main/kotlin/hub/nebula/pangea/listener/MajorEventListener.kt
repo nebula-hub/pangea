@@ -1,6 +1,7 @@
 package hub.nebula.pangea.listener
 
 import dev.minn.jda.ktx.coroutines.await
+import dev.minn.jda.ktx.messages.edit
 import hub.nebula.pangea.PangeaInstance
 import hub.nebula.pangea.command.PangeaInteractionContext
 import hub.nebula.pangea.command.component.PangeaComponentId
@@ -12,6 +13,8 @@ import kotlinx.coroutines.*
 import mu.KotlinLogging
 import net.dv8tion.jda.api.OnlineStatus
 import net.dv8tion.jda.api.entities.Activity
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
+import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent
 import net.dv8tion.jda.api.events.guild.voice.GenericGuildVoiceEvent
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent
 import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent
@@ -181,6 +184,28 @@ class MajorEventListener(val pangea: PangeaInstance) : ListenerAdapter() {
         }
     }
 
+    override fun onGuildMemberJoin(event: GuildMemberJoinEvent) {
+        coroutineScope.launch {
+            val guild = event.guild
+
+            val registeredGuild = newSuspendedTransaction {
+                Guild.getOrInsert(guild.idLong)
+            }
+
+            if (registeredGuild.autorole) {
+                val roles = registeredGuild.autoroleRolesIds?.mapNotNull {
+                    guild.getRoleById(it)
+                }
+
+                if (roles != null) {
+                    for (role in roles) {
+                        guild.addRoleToMember(event.member, role).await()
+                    }
+                }
+            }
+        }
+    }
+
     override fun onGenericGuildVoice(event: GenericGuildVoiceEvent) {
         coroutineScope.launch {
             // checar se a guild tá no banco de dados, se nao tiver, adicionar (so preciso lembrar como fas)
@@ -230,10 +255,12 @@ class MajorEventListener(val pangea: PangeaInstance) : ListenerAdapter() {
 
             logger.info { "Logging in with ${event.jda.gatewayIntents.size} intents." }
 
-            pangea.lavakord.addNode(
-                "ws://${pangea.config.comet.host}:${pangea.config.comet.port}",
-                pangea.config.comet.password
-            )
+            pangea.config.comet.nodes.forEach {
+                pangea.lavakord.addNode(
+                    "ws://${it.host}:${it.port}",
+                    it.password
+                )
+            }
 
             logger.info { "Lavalink node connected." }
 
@@ -244,6 +271,54 @@ class MajorEventListener(val pangea: PangeaInstance) : ListenerAdapter() {
             logger.info { "Registered ${commands?.size} commands!" }
 
             scheduledExecutorService.scheduleAtFixedRate({ changeStatus(event) }, 0, 10, TimeUnit.MINUTES)
+            scheduledExecutorService.scheduleAtFixedRate({ updateLavalinkStatus(event) }, 0, 1, TimeUnit.MINUTES)
+        }
+    }
+
+    private fun updateLavalinkStatus(event: ReadyEvent) {
+        val lavakord = pangea.lavakord
+        val channel = event.jda.getGuildById(pangea.config.mainLand.id)!!.getGuildChannelById(pangea.config.mainLand.lavalinkChannel) as TextChannel
+
+        val text = StringBuilder().apply{
+            appendLine("```")
+            appendLine("· STATUS: ${if (lavakord.isActive) "Connected" else "Disconnected"}")
+            appendLine("· PLUGINS:")
+            lavakord.options.plugins.plugins.forEach {
+                appendLine("· » ${it.name} (${it.version})")
+            }
+            appendLine("· NODES:")
+            lavakord.nodes.forEachIndexed { index, it ->
+                appendLine("· » NODE ${index +1}:")
+                appendLine("· - » Status: ${if (it.available) "Connected" else "Disconnected"}")
+                appendLine("· - » Name: ${it.name}")
+                appendLine("· - » CPU: ${it.lastStatsEvent?.cpu?.systemLoad.toString().split(".")[0]}% (Cores: ${it.lastStatsEvent?.cpu?.cores})")
+                appendLine("· - » Memory: ${it.lastStatsEvent?.memory?.used!! / 1024 / 1024}MB/${it.lastStatsEvent?.memory?.allocated!! / 1024 / 1024}MB")
+                appendLine("· - » Players: ${it.lastStatsEvent?.players}")
+                if (it.lastStatsEvent?.uptime == null) {
+                    appendLine("· - » Uptime: N/A")
+                } else {
+                    val uptime = it.lastStatsEvent?.uptime!!
+                    val days = TimeUnit.MILLISECONDS.toDays(uptime)
+                    val hours = TimeUnit.MILLISECONDS.toHours(uptime) % 24
+                    val minutes = TimeUnit.MILLISECONDS.toMinutes(uptime) % 60
+                    val seconds = TimeUnit.MILLISECONDS.toSeconds(uptime) % 60
+                    appendLine("· - » Uptime: ${days}d, ${hours}h, ${minutes}m, ${seconds}s")
+                }
+            }
+            appendLine("```")
+            appendLine("Last updated at <t:${System.currentTimeMillis() / 1000}:R>")
+        }
+
+        GlobalScope.launch {
+            val lastMessage = channel.retrieveMessageById(channel.latestMessageId).await()
+
+            if (lastMessage != null && lastMessage.author.idLong == event.jda.selfUser.idLong) {
+                lastMessage.edit(text.toString()).await()
+            } else {
+                channel.sendMessage(text.toString()).queue()
+            }
+
+            logger.info { "Updating lavalink status..." }
         }
     }
 

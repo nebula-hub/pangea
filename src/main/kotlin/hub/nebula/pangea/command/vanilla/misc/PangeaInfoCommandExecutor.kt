@@ -29,9 +29,6 @@ class PangeaInfoCommandExecutor : PangeaSlashCommandExecutor() {
             groupedSongs.values.sortedByDescending { it?.playCount }.take(10).forEachIndexed {index, it ->
                 appendLine("${index + 1}. [${it?.title}](${it?.uri}) - Played ${it?.playCount} times")
             }
-
-            songs.take(10).forEachIndexed { index, it ->
-            }
         }
 
         val uptime = ManagementFactory.getRuntimeMXBean().uptime
@@ -62,7 +59,7 @@ class PangeaInfoCommandExecutor : PangeaSlashCommandExecutor() {
 
                 field {
                     name = context.locale["$LOCALE_PREFIX.info.embedRAMUsage"]
-                    value = "`${usedMemory / 1024 / 1024}MB`"
+                    value = "`${usedMemory / 1024 / 1024}MB / ${totalMemory / 1024 / 1024}MB`"
                     inline = true
                 }
 
@@ -73,7 +70,7 @@ class PangeaInfoCommandExecutor : PangeaSlashCommandExecutor() {
                 }
 
                 field {
-                    name = "Most played song (top 10)"
+                    name = context.locale["$LOCALE_PREFIX.info.mostPlayedSong"]
                     value = text.toString()
                     inline = false
                 }
@@ -87,6 +84,10 @@ class PangeaInfoCommandExecutor : PangeaSlashCommandExecutor() {
                 Button.link(
                     "https://discord.com/oauth2/authorize?client_id=${context.jda.selfUser.idLong}&permissions=8&scope=bot",
                     context.locale["$LOCALE_PREFIX.info.inviteMe"]
+                ),
+                Button.link(
+                    "https://discord.gg/7jC6BUZKKC",
+                    context.locale["$LOCALE_PREFIX.info.supportServer"]
                 )
             )
         }

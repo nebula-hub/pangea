@@ -9,8 +9,8 @@ import hub.nebula.pangea.command.PangeaInteractionContext
 import hub.nebula.pangea.command.structure.PangeaSlashCommandExecutor
 import hub.nebula.pangea.command.vanilla.music.declaration.MusicCommand.Companion.LOCALE_PREFIX
 import hub.nebula.pangea.utils.*
-import kotlinx.coroutines.delay
 import mu.KotlinLogging
+import net.dv8tion.jda.api.exceptions.InsufficientPermissionException
 import kotlin.reflect.jvm.jvmName
 
 class MusicPlayCommandExecutor : PangeaSlashCommandExecutor() {
@@ -62,9 +62,17 @@ class MusicPlayCommandExecutor : PangeaSlashCommandExecutor() {
             is LoadResult.TrackLoaded -> {
                 val isEmpty = instance.scheduler.queue.isEmpty()
 
-                instance.link.connect(context, memberVoiceState.channelId)
-
-                sendPlayingTrackEmbed(context, item.data, isEmpty)
+                try {
+                    instance.link.connect(context, memberVoiceState.channelId)
+                    instance.scheduler.queue(item.data)
+                    sendPlayingTrackEmbed(context, item.data, isEmpty)
+                } catch (e: InsufficientPermissionException) {
+                    context.reply(true) {
+                        pretty(
+                            context.locale["$LOCALE_PREFIX.play.loadFailed", e.message.toString()]
+                        )
+                    }
+                }
             }
 
             is LoadResult.PlaylistLoaded -> {
@@ -72,43 +80,49 @@ class MusicPlayCommandExecutor : PangeaSlashCommandExecutor() {
 
                 val removed = mutable.removeAt(0)
 
-                instance.link.connect(context, memberVoiceState.channelId)
+                try {
+                    instance.link.connect(context, memberVoiceState.channelId)
 
-                instance.scheduler.queue(removed)
+                    instance.scheduler.queue(removed)
 
-                delay(2000).also {
                     instance.scheduler.queue.addAll(mutable)
-                }
 
-                val message = StringBuilder().apply {
-                    appendLine(
-                        "## ${context.locale["$LOCALE_PREFIX.play.playlistAdded", item.data.info.name, query]}"
-                    )
-                }
-
-                if (item.data.tracks.size > 10) {
-                    item.data.tracks.take(10).forEachIndexed { index, it ->
-                        message.appendLine(
-                            context.locale["$LOCALE_PREFIX.play.playlistAddedDescription", (index + 1).toString(), it.info.title, it.info.uri.toString(), it.info.author, it.info.sourceName]
+                    val message = StringBuilder().apply {
+                        appendLine(
+                            "## ${context.locale["$LOCALE_PREFIX.play.playlistAdded", item.data.info.name, query]}"
                         )
                     }
 
-                    message.appendLine()
-                    message.appendLine(
-                        context.locale["$LOCALE_PREFIX.play.playlistMoreSongs", (item.data.tracks.size - 10).toString()]
-                    )
-                } else {
-                    item.data.tracks.forEachIndexed { index, it ->
-                        message.appendLine(
-                            context.locale["$LOCALE_PREFIX.play.playlistAddedDescription", (index + 1).toString(), it.info.title, it.info.uri.toString(), it.info.author, it.info.sourceName]
-                        )
-                    }
-                }
+                    if (item.data.tracks.size > 10) {
+                        item.data.tracks.take(10).forEachIndexed { index, it ->
+                            message.appendLine(
+                                context.locale["$LOCALE_PREFIX.play.playlistAddedDescription", (index + 1).toString(), it.info.title, it.info.uri.toString(), it.info.author, it.info.sourceName]
+                            )
+                        }
 
-                context.reply {
-                    embed {
-                        color = Constants.DEFAULT_COLOR
-                        description = message.toString()
+                        message.appendLine()
+                        message.appendLine(
+                            context.locale["$LOCALE_PREFIX.play.playlistMoreSongs", (item.data.tracks.size - 10).toString()]
+                        )
+                    } else {
+                        item.data.tracks.forEachIndexed { index, it ->
+                            message.appendLine(
+                                context.locale["$LOCALE_PREFIX.play.playlistAddedDescription", (index + 1).toString(), it.info.title, it.info.uri.toString(), it.info.author, it.info.sourceName]
+                            )
+                        }
+                    }
+
+                    context.reply {
+                        embed {
+                            color = Constants.DEFAULT_COLOR
+                            description = message.toString()
+                        }
+                    }
+                } catch (e: InsufficientPermissionException) {
+                    context.reply(true) {
+                        pretty(
+                            context.locale["$LOCALE_PREFIX.play.loadFailed", e.message.toString()]
+                        )
                     }
                 }
             }
@@ -116,18 +130,26 @@ class MusicPlayCommandExecutor : PangeaSlashCommandExecutor() {
             is LoadResult.SearchResult -> {
                 val track = item.data.tracks.firstOrNull()
 
-                if (track != null) {
-                    instance.link.connect(context, memberVoiceState.channelId)
+                try {
+                    if (track != null) {
+                        instance.link.connect(context, memberVoiceState.channelId)
 
-                    instance.scheduler.queue(track)
+                        instance.scheduler.queue(track)
 
-                    val isEmpty = instance.scheduler.queue.isEmpty()
+                        val isEmpty = instance.scheduler.queue.isEmpty()
 
-                    sendPlayingTrackEmbed(context, track, isEmpty)
-                } else {
+                        sendPlayingTrackEmbed(context, track, isEmpty)
+                    } else {
+                        context.reply(true) {
+                            pretty(
+                                context.locale["$LOCALE_PREFIX.play.noMatches", query]
+                            )
+                        }
+                    }
+                } catch (e: InsufficientPermissionException) {
                     context.reply(true) {
                         pretty(
-                            context.locale["$LOCALE_PREFIX.play.noMatches", query]
+                            context.locale["$LOCALE_PREFIX.play.loadFailed", e.message.toString()]
                         )
                     }
                 }

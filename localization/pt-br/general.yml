@@ -39,6 +39,8 @@ commands:
         embedRAMUsage: "Uso de RAM"
         sourceCode: "Código-fonte"
         inviteMe: "Convide-me para seu servidor"
+        mostPlayedSong: "Músicas mais tocadas (top 10)"
+        supportServer: "Servidor de Suporte"
     admin:
       description: "Comandos relacionados à administração."
       successfullyPunished: "O membro foi punido com sucesso."
@@ -63,23 +65,61 @@ commands:
           reason:
             description: "O motivo da punição. (Opcional)"
     currency:
+      local:
+        balance:
+          description: "(Local) Economia » Verifique seu saldo de moedas."
+          options:
+            user:
+              description: "O usuário que você deseja verificar o saldo."
+        rank:
+          description: "(Local) Economia » Verifique o ranking de moedas."
+        daily:
+          description: "(Local) Economia » Receba sua recompensa diária."
+        bet:
+          description: "(Local) Economia » Aposte moedas com outro usuário."
+          options:
+            user:
+              description: "O usuário com quem você deseja apostar."
+            amount:
+              description: "A quantidade de moedas que você deseja apostar."
+        slots:
+            description: "(Local) Economia » Jogue nas máquinas caça-níqueis com moedas."
+            options:
+              amount:
+                description: "A quantidade de moedas que você deseja apostar."
+      global:
+        balance:
+          description: "(Global) Economia » Verifique seu saldo de Stardusts."
+          options:
+            user:
+              description: "O usuário que você deseja verificar o saldo."
+        rank:
+          description: "(Global) Economia » Verifique o ranking de Stardusts."
+        daily:
+          description: "(Global) Economia » Receba suas Stardusts diárias."
+        bet:
+          description: "(Global) Economia » Aposte Stardusts com outro usuário."
+          options:
+            user:
+              description: "O usuário com quem você deseja apostar."
+            amount:
+              description: "A quantidade de Stardusts que você deseja apostar."
+        slots:
+          description: "(Global) Economia » Jogue nas máquinas caça-níqueis com Stardusts."
+          options:
+            amount:
+              description: "A quantidade de Stardusts que você deseja apostar."
       description: "Comandos relacionados à economia."
       balance:
         options:
           user:
             description: "O usuário que você deseja verificar o saldo."
-          gateway:
-            description: "O gateway para verificar o saldo."
-        description: "Economia » Verifique seu saldo."
         balanceText: "Você tem {0} {1}"
         otherBalanceText: "{0} tem {1} {2}"
         rankingText: "Você está em `#{0}` no ranking de {1}"
+        otherRankingText: "Essa pessoa está em `#{0}` no ranking de {1}"
         localEconomyDisabled: "Local Economy is disabled in this server."
       rank:
-        options:
-          gateway:
-            description: "O gateway para verificar o ranking."
-        description: "Economia » Verifique o ranking de moedas."
         embedTitle: "Ranking de {0} - {1}"
         embedFooter: "Página {0} de {1}"
         alreadyAtFirstPage: "Você já está na primeira página."
@@ -88,10 +128,6 @@ commands:
         previous: "Anterior"
         next: "Próximo"
       daily:
-        options:
-          gateway:
-            description: "O gateway para reivindicar a recompensa diária."
-        description: "Economia » Receba sua recompensa diária."
         alreadyClaimed: "[{0}] Você já pegou a sua recompensa diária. Volte em <t:{1}:F>."
         claimed: "[{0}] Você pegou {1} {2} da sua recompensa diária."
       bet:
@@ -100,9 +136,6 @@ commands:
             description: "O usuário com quem você deseja apostar."
           amount:
             description: "A quantidade de moedas que você deseja apostar."
-          gateway:
-            description: "O gateway para apostar."
-        description: Economia » Aposte moedas com outro usuário."
         youDontHaveSufficientCurrency: "Você não tem {0} o suficiente para apostar."
         targetDontHaveSufficientCurrency: "{0} não tem {1} o suficiente para apostar com você."
         userWantsToBetWithYou: "{0} quer apostar {1} {2} com você, {3}. Você aceita?"
@@ -116,9 +149,6 @@ commands:
         options:
           amount:
             description: "A quantidade de moedas que você deseja apostar."
-          gateway:
-            description: "O gateway para apostar."
-        description: "Economia » Jogue nas máquinas caça-níqueis."
         notEnoughCurrency: "Você não tem {0} o suficiente para jogar."
         youWon: "Parabéns, você ganhou {0} {1}!"
         youLose: "Que pena, você perdeu {0} {1}."
@@ -150,8 +180,8 @@ commands:
         title: "Resultados da Pesquisa"
         description: "Música » Pesquise por músicas no YouTube, SoundCloud ou Spotify."
         iFound: "Eu encontrei `{0}` músicas nessa pesquisa, selecione a desejada abaixo!"
-        addedToQueue: "Adicionando **[{0}]({1})** à fila!"
-        playingNow: "Tocando agora **[{0}]({1})**."
+        addedToQueue: "Adicionando **[{0}](<{1}>)** à fila!"
+        playingNow: "Tocando agora **[{0}](<{1}>)**."
         selectedSongSuccessfully: "Música selecionada com sucesso."
         options:
           name:

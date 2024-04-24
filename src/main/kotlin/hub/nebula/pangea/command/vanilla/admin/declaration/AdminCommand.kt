@@ -26,7 +26,7 @@ class AdminCommand : PangeaSlashCommandDeclarationWrapper {
         subCommand(
             "ban",
             "admin.ban.description",
-            "admin"
+            baseName = this@command.name
         ) {
             addOption(
                 OptionData(
