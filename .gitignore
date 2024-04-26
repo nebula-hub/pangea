@@ -19,5 +19,4 @@ pangea.conf
 
 # Pangea Localization
 # for local instances :)
-./localization
-./localization/
+/localization
