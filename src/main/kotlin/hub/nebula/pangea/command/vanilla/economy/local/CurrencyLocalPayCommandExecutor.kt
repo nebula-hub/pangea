@@ -114,6 +114,20 @@ class CurrencyLocalPayCommandExecutor : PangeaSlashCommandExecutor() {
                         it.reply {
                             content = text.toString()
                         }
+                    },
+                context.pangea.interactionManager
+                    .createButtonForUser(user, ButtonStyle.DANGER, context.locale["commands.buttons.decline"]) {
+                        it.edit {
+                            actionRow(
+                                Button.of(ButtonStyle.DANGER, "-", it.locale["commands.buttons.paymentDeclined"]).asDisabled()
+                            )
+                        }
+
+                        it.reply {
+                            pretty(
+                                context.locale["$LOCALE_PREFIX.pay.userDeclined", user.asMention]
+                            )
+                        }
                     }
             )
         }
