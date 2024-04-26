@@ -42,12 +42,6 @@ class MajorEventListener(val pangea: PangeaInstance) : ListenerAdapter() {
                     Guild.getOrInsert(event.guild!!.idLong)
                 }
             }
-
-            when (event) {
-                is ButtonInteractionEvent -> {
-
-                }
-            }
         }
     }
 
