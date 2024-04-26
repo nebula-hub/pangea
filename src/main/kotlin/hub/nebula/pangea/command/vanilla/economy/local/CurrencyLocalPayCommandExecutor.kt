@@ -125,7 +125,7 @@ class CurrencyLocalPayCommandExecutor : PangeaSlashCommandExecutor() {
 
                         it.reply {
                             pretty(
-                                context.locale["$LOCALE_PREFIX.pay.userDeclined", user.asMention]
+                                it.locale["$LOCALE_PREFIX.pay.userDeclined", user.asMention]
                             )
                         }
                     }
