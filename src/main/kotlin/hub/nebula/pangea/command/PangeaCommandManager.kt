@@ -4,6 +4,7 @@ import dev.minn.jda.ktx.coroutines.await
 import hub.nebula.pangea.PangeaInstance
 import hub.nebula.pangea.command.structure.PangeaSlashCommandDeclarationWrapper
 import hub.nebula.pangea.command.vanilla.admin.declaration.AdminCommand
+import hub.nebula.pangea.command.vanilla.dev.declaration.ToolsCommand
 import hub.nebula.pangea.command.vanilla.economy.declaration.CurrencyCommand
 import hub.nebula.pangea.command.vanilla.misc.declaration.PangeaCommand
 import hub.nebula.pangea.command.vanilla.music.declaration.MusicCommand
@@ -33,18 +34,21 @@ class PangeaCommandManager(private val pangea: PangeaInstance) {
                     command.create().build()
                 ).await()
                 logger.info { "Registered /${command.create().name} private command!" }
+            } else {
+                action.addCommands(
+                    command.create().build()
+                )
+                logger.info { "Registered /${command.create().name} command!" }
             }
-
-            action.addCommands(
-                command.create().build()
-            )
-            logger.info { "Registered /${command.create().name} command!" }
         }
 
         return action.await()
     }
 
     init {
+        // ===[ Developer ]===
+        register(ToolsCommand())
+
         // ===[ Miscellaneous ]===
         register(PangeaCommand())
 

@@ -24,6 +24,7 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent
 import net.dv8tion.jda.api.events.interaction.component.GenericComponentInteractionCreateEvent
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent
 import net.dv8tion.jda.api.events.session.ReadyEvent
+import net.dv8tion.jda.api.events.session.SessionResumeEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import java.util.concurrent.Executors
@@ -34,6 +35,18 @@ class MajorEventListener(val pangea: PangeaInstance) : ListenerAdapter() {
     private val scheduledExecutorService = Executors.newScheduledThreadPool(1)
     val coroutineScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
     val logger = KotlinLogging.logger(this::class.jvmName)
+
+    companion object {
+        fun connectLavalinkNode(pangea: PangeaInstance) {
+            pangea.config.comet.nodes.forEach {
+                pangea.lavakord.addNode(
+                    "ws://${it.host}:${it.port}",
+                    it.password,
+                    "pangea-lavalink-node"
+                )
+            }
+        }
+    }
 
     override fun onGenericComponentInteractionCreate(event: GenericComponentInteractionCreateEvent) {
         coroutineScope.launch {
@@ -249,12 +262,7 @@ class MajorEventListener(val pangea: PangeaInstance) : ListenerAdapter() {
 
             logger.info { "Logging in with ${event.jda.gatewayIntents.size} intents." }
 
-            pangea.config.comet.nodes.forEach {
-                pangea.lavakord.addNode(
-                    "ws://${it.host}:${it.port}",
-                    it.password
-                )
-            }
+            connectLavalinkNode(pangea)
 
             logger.info { "Lavalink node connected." }
 
@@ -267,6 +275,10 @@ class MajorEventListener(val pangea: PangeaInstance) : ListenerAdapter() {
             scheduledExecutorService.scheduleAtFixedRate({ changeStatus(event) }, 0, 10, TimeUnit.MINUTES)
             scheduledExecutorService.scheduleAtFixedRate({ updateLavalinkStatus(event) }, 0, 1, TimeUnit.MINUTES)
         }
+    }
+
+    override fun onSessionResume(event: SessionResumeEvent) {
+        connectLavalinkNode(pangea)
     }
 
     private fun updateLavalinkStatus(event: ReadyEvent) {

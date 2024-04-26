@@ -8,11 +8,20 @@ import hub.nebula.pangea.command.PangeaInteractionContext
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.interactions.InteractionHook
+import net.dv8tion.jda.api.utils.messages.MessageEditData
 
 fun InlineMessage<*>.pretty(content: String, prefix: String = Emojis.STAR) {
     if (content.isNotBlank()) {
         this.content = "$prefix **•** $content"
     }
+}
+
+suspend fun Message.edit(block: InlineMessage<*>.() -> Unit): Message? {
+    val msg = MessageEditBuilder {
+        apply(block)
+    }
+
+    return this.editMessage(msg.build()).await()
 }
 
 fun prettyStr(content: String, prefix: String = Emojis.STAR): String {
