@@ -26,6 +26,8 @@ commands:
     notEnoughCurrency: "{0} insuficientes"
     bettedSuccessfully: "Aposta encerrada"
     betDeclined: "Aposta recusada"
+    paymentAccepted: "Pagamento aceito"
+    paymentDeclined: "Pagamento recusado"
   command:
     pangea:
       description: "Comandos relacionados ao Pangea."
@@ -82,6 +84,8 @@ commands:
               description: "O usuário com quem você deseja apostar."
             amount:
               description: "A quantidade de moedas que você deseja apostar."
+        pay:
+          description: "(Local) Economia » Pague moedas para outro usuário."
         slots:
             description: "(Local) Economia » Jogue nas máquinas caça-níqueis com moedas."
             options:
@@ -104,6 +108,8 @@ commands:
               description: "O usuário com quem você deseja apostar."
             amount:
               description: "A quantidade de Stardusts que você deseja apostar."
+        pay:
+          description: "(Global) Economia » Pague Stardusts para outro usuário."
         slots:
           description: "(Global) Economia » Jogue nas máquinas caça-níqueis com Stardusts."
           options:
@@ -127,6 +133,19 @@ commands:
         localEconomyDisabled: "Local Economy is disabled in this server."
         previous: "Anterior"
         next: "Próximo"
+      pay:
+        options:
+          user:
+            description: "O usuário que você deseja pagar."
+          amount:
+            description: "A quantidade que você deseja pagar."
+        invalidAmount: "Você não pode pagar uma quantidade negativa."
+        selfTransfer: "Você não pode transferir pra si mesmo."
+        insufficientFunds: "Você não tem {0} o suficiente para pagar."
+        confirmation: "{0} quer transferir {1} {2} para você, {3}. Você aceita?"
+        successfullyTransferred: "Feito, {0}! Você recebeu {1} {2} de {3}."
+        currentBalance: "Agora você tem {0} {1}."
+        userDeclined: "{0} recusou a transferência."
       daily:
         alreadyClaimed: "[{0}] Você já pegou a sua recompensa diária. Volte em <t:{1}:F>."
         claimed: "[{0}] Você pegou {1} {2} da sua recompensa diária."

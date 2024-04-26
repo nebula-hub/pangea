@@ -3,7 +3,8 @@ package hub.nebula.pangea.command.vanilla.economy
 import hub.nebula.pangea.command.PangeaInteractionContext
 import hub.nebula.pangea.command.structure.PangeaSlashCommandExecutor
 import hub.nebula.pangea.command.vanilla.economy.declaration.CurrencyCommand.Companion.LOCALE_PREFIX
-import hub.nebula.pangea.database.dao.User
+import hub.nebula.pangea.database.dao.Profile
+import hub.nebula.pangea.database.table.TransactionReason
 import hub.nebula.pangea.utils.*
 import net.dv8tion.jda.api.interactions.components.buttons.Button
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle
@@ -11,15 +12,15 @@ import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransacti
 
 class CurrencyBetCommandExecutor : PangeaSlashCommandExecutor() {
     override suspend fun execute(context: PangeaInteractionContext) {
-        val amount = context.getOption("amount")!!.asLong
-        val target = context.getOption("user")!!.asUser
+        val amount: Long = context.option("amount")!!
+        val target: net.dv8tion.jda.api.entities.User = context.option("user")!!
 
         newSuspendedTransaction {
-            val author = context.pangeaUser
+            val author = context.pangeaProfile
 
             context.defer()
 
-            val targetDb = User.findOrCreate(target.idLong)
+            val targetDb = Profile.findOrCreate(target.idLong)
 
             if (author.currency < amount) {
                 context.reply {
@@ -110,6 +111,14 @@ class CurrencyBetCommandExecutor : PangeaSlashCommandExecutor() {
                                     newSuspendedTransaction {
                                         author.currency += amount
                                         targetDb.currency -= amount
+
+                                        insertTransaction(
+                                            target.idLong,
+                                            context.user.idLong,
+                                            amount,
+                                            TransactionReason.BET,
+                                            "global"
+                                        )
                                     }
 
                                     text.appendLine(
@@ -125,6 +134,14 @@ class CurrencyBetCommandExecutor : PangeaSlashCommandExecutor() {
                                     newSuspendedTransaction {
                                         author.currency -= amount
                                         targetDb.currency += amount
+
+                                        insertTransaction(
+                                            context.user.idLong,
+                                            target.idLong,
+                                            amount,
+                                            TransactionReason.BET,
+                                            "global"
+                                        )
                                     }
 
                                     text.appendLine(

@@ -1,6 +1,5 @@
 package hub.nebula.pangea.command.vanilla.economy.declaration
 
-import dev.minn.jda.ktx.interactions.commands.choice
 import hub.nebula.pangea.command.structure.PangeaSlashCommandDeclarationWrapper
 import hub.nebula.pangea.command.vanilla.economy.*
 import hub.nebula.pangea.command.vanilla.economy.local.*
@@ -86,6 +85,27 @@ class CurrencyCommand : PangeaSlashCommandDeclarationWrapper {
                 )
                 executor = CurrencyLocalSlotsCommandExecutor()
             }
+
+            subCommand("pay", "pay another user") {
+                addOption(
+                    OptionData(
+                        OptionType.USER,
+                        "user",
+                        "the user you wanna pay",
+                        true
+                    ),
+                    OptionData(
+                        OptionType.INTEGER,
+                        "amount",
+                        "the amount you wanna pay",
+                        true
+                    ),
+                    isSubcommand = true,
+                    baseName = this@command.name
+                )
+
+                executor = CurrencyLocalPayCommandExecutor()
+            }
         }
         subCommandGroup("global", "Global economy", this@command.name) {
             subCommand("balance", "Check your balance") {
@@ -145,6 +165,27 @@ class CurrencyCommand : PangeaSlashCommandDeclarationWrapper {
 
             subCommand("daily", "Claim your daily reward") {
                 executor = CurrencyDailyCommandExecutor()
+            }
+
+            subCommand("pay", "pay another user") {
+                addOption(
+                    OptionData(
+                        OptionType.USER,
+                        "user",
+                        "the user you wanna pay",
+                        true
+                    ),
+                    OptionData(
+                        OptionType.INTEGER,
+                        "amount",
+                        "the amount you wanna pay",
+                        true
+                    ),
+                    isSubcommand = true,
+                    baseName = this@command.name
+                )
+
+                executor = CurrencyPayCommandExecutor()
             }
         }
     }

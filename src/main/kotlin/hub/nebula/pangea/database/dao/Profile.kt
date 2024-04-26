@@ -5,10 +5,10 @@ import org.jetbrains.exposed.dao.LongEntity
 import org.jetbrains.exposed.dao.LongEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 
-class User(id: EntityID<Long>) : LongEntity(id) {
-    companion object : LongEntityClass<User>(Users) {
-        fun findOrCreate(id: Long): User {
-            return User.findById(id) ?: User.new(id) {}
+class Profile(id: EntityID<Long>) : LongEntity(id) {
+    companion object : LongEntityClass<Profile>(Users) {
+        fun findOrCreate(id: Long): Profile {
+            return Profile.findById(id) ?: Profile.new(id) {}
         }
     }
 

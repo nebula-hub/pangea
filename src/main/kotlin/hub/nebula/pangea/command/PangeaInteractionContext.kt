@@ -5,7 +5,7 @@ import dev.minn.jda.ktx.messages.*
 import hub.nebula.pangea.PangeaInstance
 import hub.nebula.pangea.api.localization.PangeaLocale
 import hub.nebula.pangea.database.dao.Guild
-import hub.nebula.pangea.database.dao.User
+import hub.nebula.pangea.database.dao.Profile
 import net.dv8tion.jda.api.entities.ISnowflake
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
@@ -16,6 +16,7 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent
 import net.dv8tion.jda.api.interactions.DiscordLocale
 import net.dv8tion.jda.api.interactions.InteractionHook
+import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.modals.Modal
 import org.jetbrains.exposed.sql.transactions.transaction
 import kotlin.random.Random
@@ -27,12 +28,12 @@ class PangeaInteractionContext(
     val jda = event.jda
     val guild = event.guild
     val channel = if (event.isFromGuild) {
-        event.guild!!.getGuildChannelById(event.channelId!!) as TextChannel
+        event.guild!!.getGuildChannelById(event.channelId!!) as? TextChannel
     } else null
     val random = Random
     val member = event.member
-    val pangeaUser = transaction {
-        User.findOrCreate(event.user.idLong)
+    val pangeaProfile = transaction {
+        Profile.findOrCreate(event.user.idLong)
     }
     val pangeaGuild = transaction {
         if (event.isFromGuild) {
@@ -58,6 +59,22 @@ class PangeaInteractionContext(
     fun getOption(name: String) = if (event is SlashCommandInteractionEvent) {
         event.getOption(name)
     } else null
+
+    inline fun <reified T> option(name: String): T? {
+        val option = getOption(name)
+
+        return when (option?.type) {
+            OptionType.USER -> option.asUser as T
+            OptionType.INTEGER -> option.asLong as T
+            OptionType.CHANNEL -> option.asChannel as T
+            OptionType.BOOLEAN -> option.asBoolean as T
+            OptionType.STRING -> option.asString as T
+            OptionType.ROLE -> option.asRole as T
+            OptionType.ATTACHMENT -> option.asAttachment as T
+            else -> null
+        }
+    }
+
 
     fun getValue(name: String) = when (event) {
         is ModalInteractionEvent -> event.getValue(name)

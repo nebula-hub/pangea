@@ -4,7 +4,7 @@ import dev.minn.jda.ktx.coroutines.await
 import hub.nebula.pangea.command.PangeaInteractionContext
 import hub.nebula.pangea.command.structure.PangeaSlashCommandExecutor
 import hub.nebula.pangea.command.vanilla.economy.declaration.CurrencyCommand.Companion.LOCALE_PREFIX
-import hub.nebula.pangea.database.dao.User
+import hub.nebula.pangea.database.dao.Profile
 import hub.nebula.pangea.utils.Constants
 import hub.nebula.pangea.utils.pretty
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle
@@ -13,7 +13,7 @@ import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransacti
 class CurrencyRankCommandExecutor : PangeaSlashCommandExecutor() {
     override suspend fun execute(context: PangeaInteractionContext) {
         val currencyRanking = newSuspendedTransaction {
-            User.all().sortedByDescending { it.currency }
+            Profile.all().sortedByDescending { it.currency }
                 .mapIndexed { index, user ->
                     val u = context.jda.retrieveUserById(user.userId).await()
 

@@ -273,59 +273,11 @@ class MajorEventListener(val pangea: PangeaInstance) : ListenerAdapter() {
             logger.info { "Registered ${commands?.size} commands!" }
 
             scheduledExecutorService.scheduleAtFixedRate({ changeStatus(event) }, 0, 10, TimeUnit.MINUTES)
-            scheduledExecutorService.scheduleAtFixedRate({ updateLavalinkStatus(event) }, 0, 1, TimeUnit.MINUTES)
         }
     }
 
     override fun onSessionResume(event: SessionResumeEvent) {
         connectLavalinkNode(pangea)
-    }
-
-    private fun updateLavalinkStatus(event: ReadyEvent) {
-        val lavakord = pangea.lavakord
-        val channel = event.jda.getGuildById(pangea.config.mainLand.id)!!.getGuildChannelById(pangea.config.mainLand.lavalinkChannel) as TextChannel
-
-        val text = StringBuilder().apply{
-            appendLine("```")
-            appendLine("· STATUS: ${if (lavakord.isActive) "Connected" else "Disconnected"}")
-            appendLine("· PLUGINS:")
-            lavakord.options.plugins.plugins.forEach {
-                appendLine("· » ${it.name} (${it.version})")
-            }
-            appendLine("· NODES:")
-            lavakord.nodes.forEachIndexed { index, it ->
-                appendLine("· » NODE ${index +1}:")
-                appendLine("· - » Status: ${if (it.available) "Connected" else "Disconnected"}")
-                appendLine("· - » Name: ${it.name}")
-                appendLine("· - » CPU: ${it.lastStatsEvent?.cpu?.systemLoad.toString().split(".")[0]}% (Cores: ${it.lastStatsEvent?.cpu?.cores})")
-                appendLine("· - » Memory: ${it.lastStatsEvent?.memory?.used!! / 1024 / 1024}MB/${it.lastStatsEvent?.memory?.allocated!! / 1024 / 1024}MB")
-                appendLine("· - » Players: ${it.lastStatsEvent?.players}")
-                if (it.lastStatsEvent?.uptime == null) {
-                    appendLine("· - » Uptime: N/A")
-                } else {
-                    val uptime = it.lastStatsEvent?.uptime!!
-                    val days = TimeUnit.MILLISECONDS.toDays(uptime)
-                    val hours = TimeUnit.MILLISECONDS.toHours(uptime) % 24
-                    val minutes = TimeUnit.MILLISECONDS.toMinutes(uptime) % 60
-                    val seconds = TimeUnit.MILLISECONDS.toSeconds(uptime) % 60
-                    appendLine("· - » Uptime: ${days}d, ${hours}h, ${minutes}m, ${seconds}s")
-                }
-            }
-            appendLine("```")
-            appendLine("Last updated at <t:${System.currentTimeMillis() / 1000}:R>")
-        }
-
-        GlobalScope.launch {
-            val lastMessage = channel.retrieveMessageById(channel.latestMessageId).await()
-
-            if (lastMessage != null && lastMessage.author.idLong == event.jda.selfUser.idLong) {
-                lastMessage.edit(text.toString()).await()
-            } else {
-                channel.sendMessage(text.toString()).queue()
-            }
-
-            logger.info { "Updating lavalink status..." }
-        }
     }
 
     private fun changeStatus(event: ReadyEvent) {

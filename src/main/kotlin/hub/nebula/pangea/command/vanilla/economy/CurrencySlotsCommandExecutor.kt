@@ -3,17 +3,18 @@ package hub.nebula.pangea.command.vanilla.economy
 import hub.nebula.pangea.command.PangeaInteractionContext
 import hub.nebula.pangea.command.structure.PangeaSlashCommandExecutor
 import hub.nebula.pangea.command.vanilla.economy.declaration.CurrencyCommand.Companion.LOCALE_PREFIX
+import hub.nebula.pangea.database.table.TransactionReason
 import hub.nebula.pangea.utils.*
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 
 class CurrencySlotsCommandExecutor : PangeaSlashCommandExecutor() {
     override suspend fun execute(context: PangeaInteractionContext) {
-        val amount = context.getOption("amount")!!.asLong
+        val amount: Long = context.option("amount")!!
 
         context.defer()
 
         val author = newSuspendedTransaction {
-            context.pangeaUser
+            context.pangeaProfile
         }
 
         if (author.currency < amount) {
@@ -26,9 +27,9 @@ class CurrencySlotsCommandExecutor : PangeaSlashCommandExecutor() {
         }
 
         val slots = arrayOf(
-            arrayOf("\uD83C\uDF4E", "\uD83C\uDF4A", "\uD83C\uDF4C"),
-            arrayOf("\uD83C\uDF45", "\uD83C\uDF4B", "\uD83C\uDF51"),
-            arrayOf("\uD83C\uDF52", "\uD83C\uDF4F", "\uD83C\uDF50")
+            arrayOf("<:lori_heart:1233526391967055923>", "<:kurama_heart:1233526638923354123>", "<:jerbs:1233526756003020901>"),
+            arrayOf("<:chino_happy:1233526997624553495>", "<:WAAAH:1233527509338030193>", "<:oopsie:1230743085609123892>"),
+            arrayOf("<:gatoburro:1233528466608226404>", "<:MONKA:1233527910783127572>", "<:Otag:1231448079891431484>")
         )
 
         val slot1 = slots[context.random.nextInt(0, 3)]
@@ -71,6 +72,24 @@ class CurrencySlotsCommandExecutor : PangeaSlashCommandExecutor() {
 
         newSuspendedTransaction {
             author.currency += winnedAmount
+
+            if (multiplier > 0) {
+                insertTransaction(
+                    0L,
+                    context.user.idLong,
+                    winnedAmount,
+                    TransactionReason.SLOTS,
+                    "global"
+                )
+            } else {
+                insertTransaction(
+                    context.user.idLong,
+                    0L,
+                    winnedAmount.toString().split("-")[1].toLong(),
+                    TransactionReason.SLOTS,
+                    "global"
+                )
+            }
         }
 
         context.reply {

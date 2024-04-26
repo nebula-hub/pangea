@@ -24,7 +24,8 @@ object DatabaseService {
             SchemaUtils.createMissingTablesAndColumns(
                 Guilds,
                 Songs,
-                Users
+                Users,
+                Transactions
             )
         }
     }

@@ -26,6 +26,8 @@ commands:
     notEnoughCurrency: "Insufficient {0}"
     bettedSuccessfully: "Bet successfully closed"
     betDeclined: "Bet declined"
+    paymentAccepted: "Sucessfully transferred"
+    paymentDeclined: "Transfer declined"
   command:
     pangea:
       description: "Pangea related commands."
@@ -82,6 +84,8 @@ commands:
               description: "The user to bet with."
             amount:
               description: "The amount to bet."
+        pay:
+          description: "(Global) Economy » Transfer Stardusts to another user."
         slots:
           description: "(Global) Economy » Bet Stardusts in a slot machine."
           options:
@@ -104,6 +108,8 @@ commands:
               description: "The user to bet with."
             amount:
               description: "The amount to bet."
+        pay:
+          description: "(Local) Economy » Transfer coins to another user."
         slots:
           description: "(Local) Economy » Bet coins in a slot machine."
           options:
@@ -127,6 +133,19 @@ commands:
         localEconomyDisabled: "Local Economy is disabled in this server."
         previous: "Previous"
         next: "Next"
+      pay:
+        options:
+          user:
+            description: "The user to transfer"
+          amount:
+            description: "The amount to transfer."
+        invalidAmount: "Invalid amount."
+        selfTransfer: "You can't transfer to yourself."
+        insufficientFunds: "You don't have enough {0} to transfer."
+        confirmation: "{0} wants to transfer {1} {2} to you {3}. Do you accept?"
+        successfullyTransferred: "Congrats, {0}! You have received {1} {2} from {3}"
+        currentBalance: "Now you have {0} {1}!"
+        userDeclined: "{0} declined the transfer"
       daily:
         alreadyClaimed: "[{0}] You have already claimed your daily reward. Come back in <t:{1}:F>."
         claimed: "[{0}] You claimed your daily reward. You received {1} {2}."
