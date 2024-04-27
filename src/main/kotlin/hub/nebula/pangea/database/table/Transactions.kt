@@ -6,7 +6,7 @@ object Transactions : LongIdTable() {
     var sender = long("sender").index()
     var receiver = long("receiver").nullable()
     var amount = long("amount")
-    var reason = enumerationByName("reason", 10, TransactionReason::class)
+    var reason = enumerationByName("reason", 100, TransactionReason::class)
     var gateway = text("gateway").default("global").index()
 }
 
