@@ -9,16 +9,11 @@ import hub.nebula.pangea.command.PangeaInteractionContext
 import hub.nebula.pangea.command.structure.PangeaSlashCommandExecutor
 import hub.nebula.pangea.command.vanilla.music.declaration.MusicCommand.Companion.LOCALE_PREFIX
 import hub.nebula.pangea.utils.*
-import mu.KotlinLogging
-import net.dv8tion.jda.api.exceptions.InsufficientPermissionException
-import kotlin.reflect.jvm.jvmName
 
 class MusicPlayCommandExecutor : PangeaSlashCommandExecutor() {
-    private val logger = KotlinLogging.logger(this::class.jvmName)
-
     override suspend fun execute(context: PangeaInteractionContext) {
         if (context.guild == null) {
-            context.reply(true) {
+            context.fail(true) {
                 pretty(
                     context.locale["commands.guildOnly"]
                 )
@@ -27,22 +22,42 @@ class MusicPlayCommandExecutor : PangeaSlashCommandExecutor() {
         }
 
         if (!context.pangeaGuild!!.dj) {
-            context.reply(true) {
+            context.fail(true) {
                 pretty(
-                    "This function is not active! Use `/pangeaserver view` to see more details."
+                    context.locale["commands.modules.dj"]
                 )
             }
-
             return
         }
 
-        val query = context.getOption("name")!!.asString
-        val source = context.getOption("source")?.asString
-        val instance = PangeaInstance.pangeaPlayers.getOrPut(context.guild.idLong) { PangeaPlayerManager(context.pangea.lavakord.getLink(context.guild.id), context) }
-        val memberVoiceState = context.pangea.voiceStateManager[context.member!!.idLong]
+        val query: String = context.option("name")!!
+        val source: String = context.option("source") ?: "spsearch"
 
-        if (memberVoiceState == null) {
-            context.reply(true) {
+        context.defer()
+
+        val result = if (query.isValidUrl()) {
+            query
+        } else {
+            "$source:$query"
+        }
+
+        val link = context.pangea.lavakord.getLink(context.guild.id)
+
+        val voiceStateFromCache = context.pangea.voiceStateManager[context.member!!.idLong]
+
+        if (context.member.voiceState != null && voiceStateFromCache == null) {
+            context.fail(true) {
+                pretty(
+                    context.locale["commands.modules.dj.reEnterVoiceChannel"]
+                )
+            }
+            return
+        }
+
+        val instance = PangeaInstance.pangeaPlayers.getOrPut(context.guild.idLong) { PangeaPlayerManager(link, context, voiceStateFromCache!!.channelId) }
+
+        if (context.member.voiceState == null) {
+            context.fail(true) {
                 pretty(
                     context.locale["commands.voiceChannelOnly"]
                 )
@@ -50,133 +65,94 @@ class MusicPlayCommandExecutor : PangeaSlashCommandExecutor() {
             return
         }
 
-        context.defer()
+        val anotherVoiceStateFromCache = context.pangea.voiceStateManager[context.member.idLong]
 
-        val search = if (query.isValidUrl()) {
-            query
-        } else {
-            "${source ?: "spsearch"}:$query"
+        if (anotherVoiceStateFromCache?.channelId != instance.voiceChannel) {
+            context.fail(true) {
+                pretty(
+                    context.locale["commands.command.play.notInTheSameVoiceChannel"]
+                )
+            }
+            return
         }
 
-        when (val item = instance.link.loadItem(search)) {
+        when (val item = instance.link.loadItem(result)) {
             is LoadResult.TrackLoaded -> {
+                // when one track is loaded by the link
                 val isEmpty = instance.scheduler.queue.isEmpty()
 
-                try {
-                    instance.link.connect(context, memberVoiceState.channelId)
-                    instance.scheduler.queue(item.data)
-                    sendPlayingTrackEmbed(context, item.data, isEmpty)
-                } catch (e: InsufficientPermissionException) {
-                    context.reply(true) {
-                        pretty(
-                            context.locale["$LOCALE_PREFIX.play.loadFailed", e.message.toString()]
-                        )
-                    }
-                }
-            }
-
-            is LoadResult.PlaylistLoaded -> {
-                val mutable = item.data.tracks.toMutableList()
-
-                val removed = mutable.removeAt(0)
-
-                try {
-                    instance.link.connect(context, memberVoiceState.channelId)
-
-                    instance.scheduler.queue(removed)
-
-                    instance.scheduler.queue.addAll(mutable)
-
-                    val message = StringBuilder().apply {
-                        appendLine(
-                            "## ${context.locale["$LOCALE_PREFIX.play.playlistAdded", item.data.info.name, query]}"
-                        )
-                    }
-
-                    if (item.data.tracks.size > 10) {
-                        item.data.tracks.take(10).forEachIndexed { index, it ->
-                            message.appendLine(
-                                context.locale["$LOCALE_PREFIX.play.playlistAddedDescription", (index + 1).toString(), it.info.title, it.info.uri.toString(), it.info.author, it.info.sourceName]
-                            )
-                        }
-
-                        message.appendLine()
-                        message.appendLine(
-                            context.locale["$LOCALE_PREFIX.play.playlistMoreSongs", (item.data.tracks.size - 10).toString()]
-                        )
-                    } else {
-                        item.data.tracks.forEachIndexed { index, it ->
-                            message.appendLine(
-                                context.locale["$LOCALE_PREFIX.play.playlistAddedDescription", (index + 1).toString(), it.info.title, it.info.uri.toString(), it.info.author, it.info.sourceName]
-                            )
-                        }
-                    }
-
-                    context.reply {
-                        embed {
-                            color = Constants.DEFAULT_COLOR
-                            description = message.toString()
-                        }
-                    }
-                } catch (e: InsufficientPermissionException) {
-                    context.reply(true) {
-                        pretty(
-                            context.locale["$LOCALE_PREFIX.play.loadFailed", e.message.toString()]
-                        )
-                    }
-                }
+                instance.link.connect(context, voiceStateFromCache!!.channelId)
+                instance.scheduler.queue(item.data)
+                sendPlayingTrackEmbed(context, item.data, isEmpty)
             }
 
             is LoadResult.SearchResult -> {
-                val track = item.data.tracks.firstOrNull()
+                // search result from query
 
-                try {
-                    if (track != null) {
-                        instance.link.connect(context, memberVoiceState.channelId)
+                val firstSong = item.data.tracks.first()
 
-                        instance.scheduler.queue(track)
+                instance.link.connect(context, voiceStateFromCache!!.channelId)
+                instance.scheduler.queue(firstSong)
 
-                        val isEmpty = instance.scheduler.queue.isEmpty()
+                val isEmpty = instance.scheduler.queue.isEmpty()
 
-                        sendPlayingTrackEmbed(context, track, isEmpty)
-                    } else {
-                        context.reply(true) {
-                            pretty(
-                                context.locale["$LOCALE_PREFIX.play.noMatches", query]
-                            )
-                        }
-                    }
-                } catch (e: InsufficientPermissionException) {
-                    context.reply(true) {
-                        pretty(
-                            context.locale["$LOCALE_PREFIX.play.loadFailed", e.message.toString()]
+                sendPlayingTrackEmbed(context, firstSong, isEmpty)
+            }
+
+            is LoadResult.PlaylistLoaded -> {
+                // load all songs from a playlist
+                val asMutable = item.data.tracks.toMutableList()
+                val first = asMutable.removeAt(0) // it will remove and return the first track
+
+                instance.link.connect(context, voiceStateFromCache!!.channelId)
+                instance.scheduler.queue(first)
+                instance.scheduler.queue.addAll(asMutable)
+
+                val message = StringBuilder().apply {
+                    appendLine(
+                        "## ${context.locale["$LOCALE_PREFIX.play.playlistAdded", item.data.info.name, result]}"
+                    )
+                }
+
+                if (item.data.tracks.size > 10) {
+                    item.data.tracks.take(10).forEachIndexed { index, it ->
+                        message.appendLine(
+                            context.locale["$LOCALE_PREFIX.play.playlistAddedDescription", (index + 1).toString(), it.info.title, it.info.uri.toString(), it.info.author, it.info.sourceName]
                         )
+                    }
+
+                    message.appendLine()
+                    message.appendLine(
+                        context.locale["$LOCALE_PREFIX.play.playlistMoreSongs", (item.data.tracks.size - 10).toString()]
+                    )
+                } else {
+                    item.data.tracks.forEachIndexed { index, it ->
+                        message.appendLine(
+                            context.locale["$LOCALE_PREFIX.play.playlistAddedDescription", (index + 1).toString(), it.info.title, it.info.uri.toString(), it.info.author, it.info.sourceName]
+                        )
+                    }
+                }
+
+                context.reply {
+                    embed {
+                        color = Constants.DEFAULT_COLOR
+                        description = message.toString()
                     }
                 }
             }
 
             is LoadResult.NoMatches -> {
-                context.reply(true) {
+                context.fail(true) {
                     pretty(
                         context.locale["$LOCALE_PREFIX.play.noMatches", query]
                     )
                 }
             }
 
-            is LoadResult.LoadFailed -> {
-                context.reply(true) {
-                    pretty(
-                        context.locale["$LOCALE_PREFIX.play.loadFailed", item.data.message.toString()]
-                    )
-                }
-            }
-
             else -> {
-                logger.info { "An error occurred when playing the track: ${item.data}" }
-
-                context.reply {
+                context.fail(true) {
                     pretty(
-                        context.locale["$LOCALE_PREFIX.play.loadFailedStackstrace", item.data.toString()]
+                        "Something has gone wrong... e: `${item.data.toString()}`"
                     )
                 }
             }

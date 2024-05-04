@@ -5,7 +5,8 @@ import hub.nebula.pangea.command.PangeaInteractionContext
 
 class PangeaPlayerManager(
     val link: Link,
-    val context: PangeaInteractionContext
+    val context: PangeaInteractionContext,
+    val voiceChannel: Long
 ) {
     val scheduler = PangeaTrackScheduler(link, context)
 }

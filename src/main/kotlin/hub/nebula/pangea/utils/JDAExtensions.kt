@@ -39,8 +39,29 @@ fun Guild.iconUrl(): String? {
     return "https://cdn.discordapp.com/icons/${id}/$iconId.$extension?size=2048"
 }
 
-suspend fun Link.connect(context: PangeaInteractionContext, channelId: Long) {
-    this.connect(channelId.toString())
+suspend fun Link.connect(context: PangeaInteractionContext, channelId: Long): Unit? {
+    val guild = context.guild!!
+    val voiceChannel = guild.getVoiceChannelById(channelId)
+
+    if (voiceChannel == null) {
+        context.fail(true) {
+            pretty(
+                "This voice channel doesn't exists (or is not in cache), try again in another channel."
+            )
+        }
+        return null
+    }
+
+    if (!voiceChannel.canTalk()) {
+        context.fail(true) {
+            pretty(
+                "Couldn't speak in the voice channel, it is not possible to play any song."
+            )
+        }
+        return null
+    }
+
+    return this.connect(channelId.toString())
 }
 
 suspend fun InteractionHook.edit(block: InlineMessage<*>.() -> Unit): Message? {

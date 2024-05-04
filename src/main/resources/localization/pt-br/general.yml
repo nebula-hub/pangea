@@ -13,6 +13,7 @@ commands:
       disabled: "A economia local está desativada neste servidor."
     dj:
       disabled: "DJ Pangea está desativado neste servidor."
+      reEnterVoiceChannel: "Por favor, saia e entre deste canal para usar os comandos relacionados à música."
   common:
     enabled: "Sim"
     disabled: "Não"
@@ -188,6 +189,7 @@ commands:
         loadFailed: "Não consegui tocar a música, desculpe...\n\nError: `{0}`"
         loadFailedStackstrace: "Não consegui tocar a música, desculpe...\n\nError: ```{0}```"
         addedToQueue: "Adicionado a fila."
+        notInTheSameVoiceChannel: "Você não está no mesmo canal de voz que eu."
         playingNow: "Tocando agora"
         options:
           name:

@@ -38,17 +38,19 @@ class MusicSearchCommandExecutor : PangeaSlashCommandExecutor() {
 
         val query = context.getOption("name")!!.asString
         val source = context.getOption("source")?.asString ?: "spsearch"
-        val instance = PangeaInstance.pangeaPlayers.getOrPut(context.guild.idLong) { PangeaPlayerManager(context.pangea.lavakord.getLink(context.guild.id), context) }
-        val memberVoiceState = context.pangea.voiceStateManager[context.member!!.idLong]
+        val voiceStateFromCache = context.pangea.voiceStateManager[context.member!!.idLong]
 
-        if (memberVoiceState == null) {
-            context.reply(true) {
+        if (context.member.voiceState != null && voiceStateFromCache == null) {
+            context.fail(true) {
                 pretty(
-                    context.locale["commands.voiceChannelOnly"]
+                    context.locale["commands.modules.dj.reEnterVoiceChannel"]
                 )
             }
             return
         }
+
+        val link = context.pangea.lavakord.getLink(context.guild.id)
+        val instance = PangeaInstance.pangeaPlayers.getOrPut(context.guild.idLong) { PangeaPlayerManager(link, context, voiceStateFromCache!!.channelId) }
 
         context.defer()
 
@@ -58,6 +60,16 @@ class MusicSearchCommandExecutor : PangeaSlashCommandExecutor() {
             "$source:$query"
         }
 
+        val anotherVoiceStateFromCache = context.pangea.voiceStateManager[context.member.idLong]
+
+        if (anotherVoiceStateFromCache?.channelId != instance.voiceChannel) {
+            context.fail(true) {
+                pretty(
+                    context.locale["commands.command.play.notInTheSameVoiceChannel"]
+                )
+            }
+            return
+        }
 
         when (val item = instance.link.loadItem(search)) {
             is LoadResult.SearchResult -> {
@@ -76,9 +88,7 @@ class MusicSearchCommandExecutor : PangeaSlashCommandExecutor() {
                                     setMaxValues(1)
 
                                     for ((i, song) in songs.withIndex()) {
-                                        val content = "${i + 1}. ${song.info.title}"
-
-                                        addOption(content, song.info.uri!!, content)
+                                        addOption("${i + 1}. ${song.info.author}", song.info.uri!!, song.info.title)
                                     }
                                 }) { selectMenuContext, strings ->
                                     selectMenuContext.deferEdit()
@@ -93,7 +103,7 @@ class MusicSearchCommandExecutor : PangeaSlashCommandExecutor() {
                                         )
                                     }
 
-                                    instance.link.connect(context, memberVoiceState.channelId)
+                                    instance.link.connect(context, voiceStateFromCache!!.channelId)
 
                                     val selected = songs.first { it.info.uri == strings.first()}
 

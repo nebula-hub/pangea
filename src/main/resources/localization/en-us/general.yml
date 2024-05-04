@@ -13,6 +13,7 @@ commands:
       disabled: "Local Economy is disabled in this server."
     dj:
       disabled: "DJ is disabled in this server."
+      reEnterVoiceChannel: "Please, re-enter the voice channel to use the music related commands."
   common:
     enabled: "Yes"
     disabled: "No"
@@ -189,6 +190,7 @@ commands:
         loadFailedStackstrace: "I couldn't load the song, sorry...\n\nError: ```{0}```"
         addedToQueue: "Added to queue"
         playingNow: "Playing now"
+        notInTheSameVoiceChannel: "You're not in the same voice channel as me."
         options:
           name:
             description: "The name of the music to be played (Supports URL)."

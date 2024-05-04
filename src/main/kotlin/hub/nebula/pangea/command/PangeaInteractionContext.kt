@@ -113,6 +113,12 @@ class PangeaInteractionContext(
         else -> throw IllegalStateException("Cannot defer this event type.")
     }
 
+    suspend fun fail(ephemeral: Boolean = false, block: InlineMessage<*>.() -> Unit) {
+        reply(ephemeral, block)
+
+        throw Exception("Something has gone wrong while using $command command.")
+    }
+
     suspend fun reply(ephemeral: Boolean = false, block: InlineMessage<*>.() -> Unit): ISnowflake? {
         val msg = MessageCreateBuilder {
             apply(block)
