@@ -2,7 +2,7 @@ commands:
   onlyUserCanInteractWithThisComponent: "This interaction is not for you! Only {0} can use it."
   guildOnly: "This command can be used only in servers."
   noPermission: "You need the `{0}` permission to use this command."
-  invalidUser: "The user `{0}` doesn't exist."
+  invalidUser: "The user doesn't exist."
   hierarchyError: "My role is below the user's role that you want to punish."
   commandExecutedBy: "Command executed by {0}"
   voiceChannelOnly: "You need to enter a voice channel first to use this command."

@@ -4,6 +4,7 @@ import hub.nebula.pangea.command.PangeaInteractionContext
 import hub.nebula.pangea.command.structure.PangeaSlashCommandExecutor
 import hub.nebula.pangea.command.vanilla.economy.declaration.CurrencyCommand.Companion.LOCALE_PREFIX
 import hub.nebula.pangea.utils.*
+import net.dv8tion.jda.api.entities.User
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 
 class CurrencyLocalBalanceCommandExecutor : PangeaSlashCommandExecutor() {
@@ -30,7 +31,7 @@ class CurrencyLocalBalanceCommandExecutor : PangeaSlashCommandExecutor() {
 
         context.defer()
 
-        val userId = context.getOption("user")?.asUser?.idLong ?: context.user.idLong
+        val userId: Long = context.option<User>("user")?.idLong ?: context.user.idLong
 
         val member = newSuspendedTransaction {
             guild.getMember(userId)

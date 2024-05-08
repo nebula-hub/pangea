@@ -1,8 +1,8 @@
 package hub.nebula.pangea.listener
 
 import dev.minn.jda.ktx.coroutines.await
-import dev.minn.jda.ktx.messages.edit
 import hub.nebula.pangea.PangeaInstance
+import hub.nebula.pangea.api.modules.AutoRoleModule
 import hub.nebula.pangea.command.PangeaInteractionContext
 import hub.nebula.pangea.command.component.PangeaComponentId
 import hub.nebula.pangea.database.dao.Guild
@@ -13,7 +13,8 @@ import kotlinx.coroutines.*
 import mu.KotlinLogging
 import net.dv8tion.jda.api.OnlineStatus
 import net.dv8tion.jda.api.entities.Activity
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
+import net.dv8tion.jda.api.events.guild.GuildJoinEvent
+import net.dv8tion.jda.api.events.guild.GuildLeaveEvent
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent
 import net.dv8tion.jda.api.events.guild.voice.GenericGuildVoiceEvent
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent
@@ -33,8 +34,8 @@ import kotlin.reflect.jvm.jvmName
 
 class MajorEventListener(val pangea: PangeaInstance) : ListenerAdapter() {
     private val scheduledExecutorService = Executors.newScheduledThreadPool(1)
-    val coroutineScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
-    val logger = KotlinLogging.logger(this::class.jvmName)
+    private val coroutineScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
+    private val logger = KotlinLogging.logger(this::class.jvmName)
 
     companion object {
         fun connectLavalinkNode(pangea: PangeaInstance) {
@@ -54,6 +55,22 @@ class MajorEventListener(val pangea: PangeaInstance) : ListenerAdapter() {
                 newSuspendedTransaction {
                     Guild.getOrInsert(event.guild!!.idLong)
                 }
+            }
+        }
+    }
+
+    override fun onGuildJoin(event: GuildJoinEvent) {
+        coroutineScope.launch {
+            newSuspendedTransaction {
+                Guild.getOrInsert(event.guild.idLong)
+            }
+        }
+    }
+
+    override fun onGuildLeave(event: GuildLeaveEvent) {
+        coroutineScope.launch {
+            newSuspendedTransaction {
+                Guild.getOrInsert(event.guild.idLong).delete()
             }
         }
     }
@@ -193,32 +210,15 @@ class MajorEventListener(val pangea: PangeaInstance) : ListenerAdapter() {
 
     override fun onGuildMemberJoin(event: GuildMemberJoinEvent) {
         coroutineScope.launch {
-            val guild = event.guild
-
-            val registeredGuild = newSuspendedTransaction {
-                Guild.getOrInsert(guild.idLong)
-            }
-
-            if (registeredGuild.autorole) {
-                val roles = registeredGuild.autoroleRolesIds?.mapNotNull {
-                    guild.getRoleById(it)
-                }
-
-                if (roles != null) {
-                    for (role in roles) {
-                        guild.addRoleToMember(event.member, role).await()
-                    }
-                }
-            }
+            AutoRoleModule().run(event)
         }
     }
 
     override fun onGenericGuildVoice(event: GenericGuildVoiceEvent) {
         coroutineScope.launch {
-            // checar se a guild tá no banco de dados, se nao tiver, adicionar (so preciso lembrar como fas)
             newSuspendedTransaction {
                 Guild.getOrInsert(event.guild.idLong)
-            }// :thumbsup:
+            }
 
             if (event is GuildVoiceUpdateEvent) {
                 val member = event.member

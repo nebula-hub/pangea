@@ -2,7 +2,7 @@ commands:
   onlyUserCanInteractWithThisComponent: "Essa interação não é para você! Somente {0} consegue usar!"
   guildOnly: "Esse comando pode ser usado somente em servidores."
   noPermission: "Você precisa da permissão `{0}` para usar esse comando."
-  invalidUser: "O usuário `{0}` não existe."
+  invalidUser: "O usuário não existe."
   hierarchyError: "Minha função está abaixo da função do usuário que você deseja punir."
   commandExecutedBy: "Comando executado por {0}"
   voiceChannelOnly: "Você precisa entrar em um canal de voz primeiro para usar esse comando."

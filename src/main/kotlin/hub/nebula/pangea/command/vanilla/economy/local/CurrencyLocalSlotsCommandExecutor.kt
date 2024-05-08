@@ -36,7 +36,7 @@ class CurrencyLocalSlotsCommandExecutor : PangeaSlashCommandExecutor() {
             guild.registerMember(context.member!!.idLong)
         }
 
-        val amount = context.getOption("amount")!!.asLong
+        val amount: Long = context.option("amount")!!
 
         if (member.currency < amount) {
             context.reply {

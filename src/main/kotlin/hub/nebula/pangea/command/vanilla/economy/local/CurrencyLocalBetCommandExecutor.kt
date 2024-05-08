@@ -4,6 +4,7 @@ import hub.nebula.pangea.command.PangeaInteractionContext
 import hub.nebula.pangea.command.structure.PangeaSlashCommandExecutor
 import hub.nebula.pangea.command.vanilla.economy.declaration.CurrencyCommand.Companion.LOCALE_PREFIX
 import hub.nebula.pangea.utils.*
+import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.interactions.components.buttons.Button
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
@@ -30,8 +31,8 @@ class CurrencyLocalBetCommandExecutor : PangeaSlashCommandExecutor() {
             return
         }
 
-        val target = context.getOption("user")!!.asUser
-        val amount = context.getOption("amount")!!.asLong
+        val target: User = context.option("user")!!
+        val amount: Long = context.option("amount")!!
 
         context.defer()
 

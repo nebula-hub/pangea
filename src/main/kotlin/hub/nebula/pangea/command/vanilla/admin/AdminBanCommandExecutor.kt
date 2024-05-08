@@ -5,6 +5,7 @@ import hub.nebula.pangea.command.PangeaInteractionContext
 import hub.nebula.pangea.command.structure.PangeaSlashCommandExecutor
 import hub.nebula.pangea.utils.pretty
 import net.dv8tion.jda.api.Permission
+import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.exceptions.HierarchyException
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException
 import java.util.concurrent.TimeUnit
@@ -29,18 +30,19 @@ class AdminBanCommandExecutor : PangeaSlashCommandExecutor() {
             return
         }
 
-        val member = context.getOption("member")!!.asMember
+        val target: User = context.option("member")!!
+        val member = context.guild.getMemberById(target.idLong)
 
         if (member == null) {
             context.reply(true) {
                 pretty(
-                    context.locale["commands.invalidUser", context.getOption("member")?.asString ?: "null"]
+                    context.locale["commands.invalidUser"]
                 )
             }
             return
         }
 
-        val reason = context.getOption("reason")?.asString
+        val reason: String? = context.option("reason")
         val prettyReason = if (reason == null) {
             context.locale["commands.command.admin.ban.noBanReason", context.user.name]
         } else {

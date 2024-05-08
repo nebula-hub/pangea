@@ -29,9 +29,11 @@ class AdminCheckBanCommandExecutor : PangeaSlashCommandExecutor() {
             return
         }
 
+        val targetId: Long = context.option("member_id")!!
+
         val queryBan = try {
             context.guild.retrieveBan(
-                UserSnowflake.fromId(context.getOption("member_id")!!.asLong)
+                UserSnowflake.fromId(targetId)
             ).await()
         } catch (e: Exception) {
             null

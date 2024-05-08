@@ -56,12 +56,10 @@ class PangeaInteractionContext(
         PangeaLocale(parsedLocale[event.userLocale] ?: "en-us")
     }
 
-    fun getOption(name: String) = if (event is SlashCommandInteractionEvent) {
-        event.getOption(name)
-    } else null
-
     inline fun <reified T> option(name: String): T? {
-        val option = getOption(name)
+        val option = if (event is SlashCommandInteractionEvent) {
+            event.getOption(name)
+        } else null
 
         return when (option?.type) {
             OptionType.USER -> option.asUser as T
