@@ -30,6 +30,15 @@ class MusicPlayCommandExecutor : PangeaSlashCommandExecutor() {
             return
         }
 
+        if (context.member?.voiceState == null) {
+            context.fail(true) {
+                pretty(
+                    context.locale["commands.voiceChannelOnly"]
+                )
+            }
+            return
+        }
+
         val query: String = context.option("name")!!
         val source: String = context.option("source") ?: "spsearch"
 
@@ -43,9 +52,9 @@ class MusicPlayCommandExecutor : PangeaSlashCommandExecutor() {
 
         val link = context.pangea.lavakord.getLink(context.guild.id)
 
-        val voiceStateFromCache = context.pangea.voiceStateManager[context.member!!.idLong]
+        val voiceStateFromCache = context.pangea.voiceStateManager[context.member.idLong]
 
-        if (context.member.voiceState != null && voiceStateFromCache == null) {
+        if (voiceStateFromCache == null) {
             context.fail(true) {
                 pretty(
                     context.locale["commands.modules.dj.reEnterVoiceChannel"]
@@ -54,16 +63,7 @@ class MusicPlayCommandExecutor : PangeaSlashCommandExecutor() {
             return
         }
 
-        val instance = PangeaInstance.pangeaPlayers.getOrPut(context.guild.idLong) { PangeaPlayerManager(link, context, voiceStateFromCache!!.channelId) }
-
-        if (context.member.voiceState == null) {
-            context.fail(true) {
-                pretty(
-                    context.locale["commands.voiceChannelOnly"]
-                )
-            }
-            return
-        }
+        val instance = PangeaInstance.pangeaPlayers.getOrPut(context.guild.idLong) { PangeaPlayerManager(link, context, voiceStateFromCache.channelId) }
 
         val anotherVoiceStateFromCache = context.pangea.voiceStateManager[context.member.idLong]
 
@@ -81,7 +81,7 @@ class MusicPlayCommandExecutor : PangeaSlashCommandExecutor() {
                 // when one track is loaded by the link
                 val isEmpty = instance.scheduler.queue.isEmpty()
 
-                instance.link.connect(context, voiceStateFromCache!!.channelId)
+                instance.link.connect(context, voiceStateFromCache.channelId)
                 instance.scheduler.queue(item.data)
                 sendPlayingTrackEmbed(context, item.data, isEmpty)
             }
@@ -91,7 +91,7 @@ class MusicPlayCommandExecutor : PangeaSlashCommandExecutor() {
 
                 val firstSong = item.data.tracks.first()
 
-                instance.link.connect(context, voiceStateFromCache!!.channelId)
+                instance.link.connect(context, voiceStateFromCache.channelId)
                 instance.scheduler.queue(firstSong)
 
                 val isEmpty = instance.scheduler.queue.isEmpty()
@@ -104,7 +104,7 @@ class MusicPlayCommandExecutor : PangeaSlashCommandExecutor() {
                 val asMutable = item.data.tracks.toMutableList()
                 val first = asMutable.removeAt(0) // it will remove and return the first track
 
-                instance.link.connect(context, voiceStateFromCache!!.channelId)
+                instance.link.connect(context, voiceStateFromCache.channelId)
                 instance.scheduler.queue(first)
                 instance.scheduler.queue.addAll(asMutable)
 
