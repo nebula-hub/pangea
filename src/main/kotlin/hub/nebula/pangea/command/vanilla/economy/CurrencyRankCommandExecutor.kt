@@ -12,6 +12,8 @@ import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransacti
 
 class CurrencyRankCommandExecutor : PangeaSlashCommandExecutor() {
     override suspend fun execute(context: PangeaInteractionContext) {
+        context.defer()
+
         val currencyRanking = newSuspendedTransaction {
             Profile.all().sortedByDescending { it.currency }
                 .mapIndexed { index, user ->
